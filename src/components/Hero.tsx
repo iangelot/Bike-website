@@ -54,20 +54,13 @@ function MobileCallouts() {
 }
 
 function HeroMobile() {
-  /**
-   * The Figma places COMFORT and SPEED on top of the navy band but colours all
-   * three labels navy, so two of them are unreadable as drawn. Rather than
-   * colouring them differently — which is the inconsistency that reads as a
-   * mistake — every label gets the same cream chip. Identical treatment, and
-   * legible over cream, over the band and over the black bike alike.
-   */
   const label = {
     fontSize: fig(11, 1),
     letterSpacing: "0.02em",
   } as const;
 
-  const chip =
-    "absolute rounded-[3px] bg-cream/95 px-1.5 py-0.5 font-heading uppercase text-navy";
+  /* Plain navy type, no backing plate — as the Figma draws it. */
+  const chip = "absolute font-heading uppercase text-navy";
 
   return (
     <section className="relative overflow-hidden bg-cream lg:hidden">
@@ -99,9 +92,9 @@ function HeroMobile() {
           className="absolute text-navy"
           style={{
             left: "5.72%",
-            top: "6.7%",
+            top: "5.6%",
             fontSize: fig(48, 4),
-            lineHeight: 0.875,
+            lineHeight: 1.06,
           }}
         >
           Not just
