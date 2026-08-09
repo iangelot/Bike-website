@@ -1,15 +1,14 @@
+import Image from "next/image";
 import Link from "next/link";
 
 /**
  * The RAGERIDE wordmark.
  *
- * The logo file exported from Figma is white-on-transparent, so it only reads
- * on dark surfaces — which is why the design tucks it inside the navy band.
- * On cream we need a dark version, and no dark asset exists in the file yet,
- * so the wordmark is set in type here: Anton for RAGERIDE, Archivo Black for
- * MOTORCYCLES, over the gold rule from the original mark.
- *
- * Swap in a real dark PNG/SVG later by rendering it for variant="dark".
+ * Two artwork files, because the mark is not recolourable in CSS: the dark
+ * version (navy script over gold) reads on cream, the light version (white
+ * script over gold) reads on the navy band. Both are trimmed of their
+ * transparent margin during asset optimisation so the widths below describe
+ * the artwork itself rather than empty space.
  */
 export function Logo({
   variant = "dark",
@@ -18,23 +17,20 @@ export function Logo({
   variant?: "dark" | "light";
   className?: string;
 }) {
-  const primary = variant === "dark" ? "text-navy" : "text-white";
-
   return (
     <Link
       href="/"
       aria-label="RAGERIDE Motorcycles — home"
-      className={`inline-block leading-none ${className}`}
+      className={`inline-block ${className}`}
     >
-      <span
-        className={`block font-display text-2xl tracking-wide italic ${primary}`}
-      >
-        RAGERIDE
-      </span>
-      <span className="block font-heading text-[0.6875rem] tracking-[0.22em] text-gold">
-        MOTORCYCLES
-      </span>
-      <span className="mt-1 block h-[3px] w-full bg-gold" aria-hidden />
+      <Image
+        src={variant === "dark" ? "/brand/logo-dark.webp" : "/brand/logo-light.webp"}
+        alt="RAGERIDE Motorcycles"
+        width={600}
+        height={171}
+        priority
+        className="h-auto w-[8.5rem] lg:w-[10.5rem]"
+      />
     </Link>
   );
 }
