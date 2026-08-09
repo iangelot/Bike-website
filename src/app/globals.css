@@ -14,7 +14,7 @@
   --color-slate: #3d4d5c;
   --color-line: #e5ddd7;
 
-  --font-display: var(--font-anton), "Arial Narrow", sans-serif;
+  --font-display: var(--font-archivo), system-ui, sans-serif;
   --font-heading: var(--font-archivo), system-ui, sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
 
@@ -41,7 +41,7 @@
     font-family: var(--font-display);
     text-transform: uppercase;
     line-height: 0.95;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
 
   ::selection {

@@ -97,8 +97,8 @@ export function Hero() {
       {/* Text column is deliberately narrow at small sizes so it can never run
           underneath the band. Top padding clears the overlaid header. */}
       <div className="shell relative z-10 pt-24 lg:pt-32">
-        <div className="max-w-[13.5rem] sm:max-w-[20rem] md:max-w-[30rem] lg:max-w-[48rem]">
-          <h1 className="text-[3.25rem] sm:text-6xl md:text-7xl lg:text-[6rem]">
+        <div className="max-w-[13.5rem] sm:max-w-[20rem] md:max-w-[32rem] lg:max-w-[56rem]">
+          <h1 className="text-[2.375rem] sm:text-5xl md:text-6xl lg:text-[5.5rem]">
             Not just bikes
           </h1>
           <p className="mt-3 font-heading text-base uppercase leading-tight sm:text-xl lg:mt-4 lg:whitespace-nowrap lg:text-[2.15rem]">

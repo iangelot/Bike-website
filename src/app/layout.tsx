@@ -1,23 +1,16 @@
 import type { Metadata } from "next";
-import { Anton, Archivo_Black, Inter } from "next/font/google";
+import { Archivo_Black, Inter } from "next/font/google";
 import { site } from "@/lib/site";
 import "./globals.css";
 
 /**
- * Three families, all free and self-hosted by next/font.
+ * Two families, both free and self-hosted by next/font.
  *
  * The Figma file also specified Helvetica Neue (not a web font — it silently
  * becomes Arial off macOS) and "FONTSPRING DEMO - Visby CF Extra Bold", a trial
  * font that cannot be licensed for a live site. Inter and Archivo Black stand
  * in for those respectively.
  */
-const anton = Anton({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-anton",
-  display: "swap",
-});
-
 const archivo = Archivo_Black({
   subsets: ["latin"],
   weight: "400",
@@ -53,7 +46,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${anton.variable} ${archivo.variable} ${inter.variable}`}
+      className={`${archivo.variable} ${inter.variable}`}
     >
       <body>{children}</body>
     </html>
