@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+   Colours are sampled from the Figma file (MwX5EjWKd6umH4i5RcMgqZ) rather than
+   guessed. The one deliberate departure is body copy: the design used #74b4d9
+   on cream, which measures 2.1:1 contrast and fails WCAG AA by a wide margin.
+   It is replaced by --color-slate at 7.9:1.
+--------------------------------------------------------------------------- */
+@theme {
+  --color-cream: #f8f3f0;
+  --color-navy: #001a34;
+  --color-gold: #f9be18;
+  --color-slate: #3d4d5c;
+  --color-line: #e5ddd7;
+
+  --font-display: var(--font-anton), "Arial Narrow", sans-serif;
+  --font-heading: var(--font-archivo), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  --radius-card: 1rem;
+  --radius-pill: 999px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-cream);
+    color: var(--color-navy);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* The design is built on uppercase display type; centralised so section
+     headings never have to repeat the same four declarations. */
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background: var(--color-gold);
+    color: var(--color-navy);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Page gutter, shared by every section so edges line up down the page. */
+  .shell {
+    width: 100%;
+    max-width: 90rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (width >= 48rem) {
+    .shell {
+      padding-inline: 3rem;
+    }
+  }
+
+  /* Section rhythm lifted from the mobile design: small gold eyebrow, big
+     navy heading, then content. Repeating it is what ties the pages together. */
+  .eyebrow {
+    font-family: var(--font-heading);
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.9375rem;
+    line-height: 1;
+    padding: 1rem 1.5rem;
+    white-space: nowrap;
+    transition: transform 0.15s ease, background-color 0.15s ease,
+      color 0.15s ease;
+    /* Never below the 44px minimum touch target. */
+    min-height: 2.75rem;
+  }
+
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  .btn-primary {
+    background: var(--color-navy);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: #052f52;
+  }
+
+  .btn-gold {
+    background: var(--color-gold);
+    color: var(--color-navy);
+    font-weight: 600;
+  }
+
+  .btn-gold:hover {
+    background: #ffcb37;
+  }
+
+  .btn-outline {
+    border: 2px solid var(--color-navy);
+    color: var(--color-navy);
+  }
+
+  .btn-outline:hover {
+    background: var(--color-navy);
+    color: #fff;
+  }
+}
+
+/* The angled road band from the hero. Figma draws it as a rotated rectangle
+   with the photo scaled inside; in CSS a clip-path polygon is the equivalent
+   that survives arbitrary viewport widths. Percentages keep the angle stable
+   as the container grows. */
+.road-band {
+  clip-path: polygon(38% 0, 100% 0, 62% 100%, 0 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

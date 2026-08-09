@@ -1,0 +1,102 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { Logo } from "./Logo";
+import { nav, site, whatsappLink } from "@/lib/site";
+
+/**
+ * Overlays the hero rather than stacking above it, so the angled road band can
+ * run to the very top of the page with the navigation sitting over it — which
+ * is how the Figma desktop frame is composed.
+ *
+ * Desktop follows the design: nav on the left, no wordmark here, because the
+ * brand mark lives in the band top-right. Mobile keeps its own dark wordmark
+ * top-left, again as designed.
+ */
+export function SiteHeader() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <header className="absolute inset-x-0 top-0 z-50">
+      <div className="shell flex items-center justify-between gap-6 py-5">
+        <Logo className="lg:hidden" />
+
+        <nav className="hidden items-center gap-10 lg:flex" aria-label="Main">
+          {nav.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-[0.9375rem] uppercase tracking-wide text-navy transition-colors hover:text-gold"
+            >
+              {item.label}
+            </Link>
+          ))}
+          <a
+            href={whatsappLink(`Hello ${site.name}, I'd like to buy a bike.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary px-7 uppercase"
+          >
+            Buy
+          </a>
+        </nav>
+
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-controls="mobile-nav"
+          aria-label={open ? "Close menu" : "Open menu"}
+          className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] lg:hidden"
+        >
+          <span
+            className={`block h-[3px] w-7 rounded-full bg-navy transition-transform ${
+              open ? "translate-y-2 rotate-45" : ""
+            }`}
+          />
+          <span
+            className={`block h-[3px] w-7 rounded-full bg-navy transition-opacity ${
+              open ? "opacity-0" : ""
+            }`}
+          />
+          <span
+            className={`block h-[3px] w-7 rounded-full bg-navy transition-transform ${
+              open ? "-translate-y-2 -rotate-45" : ""
+            }`}
+          />
+        </button>
+      </div>
+
+      {open && (
+        <nav
+          id="mobile-nav"
+          aria-label="Main"
+          className="shell bg-cream pb-6 shadow-lg lg:hidden"
+        >
+          <ul className="flex flex-col">
+            {nav.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="block border-b border-line py-4 font-heading text-lg uppercase text-navy"
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <a
+            href={whatsappLink(`Hello ${site.name}, I'd like to buy a bike.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-gold mt-5 w-full"
+          >
+            Message us on WhatsApp
+          </a>
+        </nav>
+      )}
+    </header>
+  );
+}
