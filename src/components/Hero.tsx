@@ -3,12 +3,191 @@ import Link from "next/link";
 import { ArrowRight } from "./icons";
 
 /**
- * Callout lines are drawn as one SVG sharing the bike image's viewBox, so each
- * line always ends on the same part of the motorcycle however the image is
- * scaled. Thin line plus a dot, per the reference mockup — the earlier fat
- * curved arrows were much heavier than the design wants.
+ * The hero is two separate compositions rather than one responsive layout.
+ *
+ * The Figma file contains a 1440 desktop frame and a 402 iPhone frame whose
+ * elements sit at unrelated coordinates, so trying to interpolate one into the
+ * other is what produced the earlier misalignment. Each is built to its own
+ * frame's numbers instead.
+ *
+ * Band treatment is taken from the Figma layer rather than estimated: the road
+ * photograph at full opacity beneath a rgba(0,26,52,0.65) navy fill.
  */
-function CalloutLines() {
+
+const BAND_OVERLAY = "bg-[rgba(0,26,52,0.65)]";
+
+/* ------------------------------------------------------------------ mobile */
+
+/**
+ * Mobile hero, laid out in the Figma iPhone frame's own coordinate space:
+ * 402 wide by 608 tall (the frame's y=59..667, below the header).
+ *
+ * Every position is a percentage of that box and every type size is a fraction
+ * of the viewport width, so the whole composition scales as one piece exactly
+ * as it does in Figma — which is what keeps the labels on their arrows.
+ */
+
+/** px in the 402-wide frame → viewport width units, capped so it stops growing. */
+const fig = (px: number, maxRem: number) =>
+  `min(${((px / 402) * 100).toFixed(2)}vw, ${maxRem}rem)`;
+
+function MobileCallouts() {
+  return (
+    <svg
+      viewBox="0 0 402 608"
+      fill="none"
+      aria-hidden
+      className="absolute inset-0 h-full w-full"
+    >
+      <g stroke="#001a34" strokeWidth="1.5">
+        <line x1="86" y1="430" x2="150" y2="461" />
+        <line x1="350" y1="334" x2="308" y2="372" />
+        <line x1="332" y1="537" x2="274" y2="461" />
+      </g>
+      <g fill="#001a34">
+        <circle cx="150" cy="461" r="4" />
+        <circle cx="308" cy="372" r="4" />
+        <circle cx="274" cy="461" r="4" />
+      </g>
+    </svg>
+  );
+}
+
+function HeroMobile() {
+  /**
+   * The Figma places COMFORT and SPEED on top of the navy band but colours all
+   * three labels navy, so two of them are unreadable as drawn. Rather than
+   * colouring them differently — which is the inconsistency that reads as a
+   * mistake — every label gets the same cream chip. Identical treatment, and
+   * legible over cream, over the band and over the black bike alike.
+   */
+  const label = {
+    fontSize: fig(11, 1),
+    letterSpacing: "0.02em",
+  } as const;
+
+  const chip =
+    "absolute rounded-[3px] bg-cream/95 px-1.5 py-0.5 font-heading uppercase text-navy";
+
+  return (
+    <section className="relative overflow-hidden bg-cream lg:hidden">
+      <div className="relative w-full" style={{ aspectRatio: "402 / 608" }}>
+        {/* Band: photo at full strength under a 65% navy fill, per Figma. */}
+        <div className="road-band absolute inset-0">
+          <Image
+            src="/brand/road-band.webp"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+          <div className={`absolute inset-0 ${BAND_OVERLAY}`} />
+        </div>
+
+        {/* Brand mark, centred in the band: Figma x=294 w=88 on a 402 frame. */}
+        <Image
+          src="/brand/logo-light.webp"
+          alt=""
+          width={600}
+          height={171}
+          className="absolute"
+          style={{ left: "73.1%", top: "3.8%", width: "21.9%" }}
+        />
+
+        <h1
+          className="absolute text-navy"
+          style={{
+            left: "5.72%",
+            top: "6.7%",
+            fontSize: fig(48, 4),
+            lineHeight: 0.875,
+          }}
+        >
+          Not just
+          <br />
+          bikes
+        </h1>
+
+        <p
+          className="absolute font-heading uppercase text-navy"
+          style={{
+            left: "5.72%",
+            top: "25.7%",
+            fontSize: fig(15, 1.25),
+            lineHeight: 1.53,
+          }}
+        >
+          Where passion meets
+          <br />
+          the ground
+        </p>
+
+        <p
+          className="absolute text-slate"
+          style={{
+            left: "5.72%",
+            top: "34%",
+            width: "55%",
+            fontSize: fig(11, 0.95),
+            lineHeight: 1.18,
+          }}
+        >
+          Quality used and new bikes, checked, ridden, and sold straight. No
+          surprises, no hidden fees.
+        </p>
+
+        {/* Figma draws this button 23px tall. That is below the 44px minimum
+            touch target, so the height is raised while the width is kept. */}
+        <Link
+          href="/bikes"
+          className="btn btn-primary absolute"
+          style={{
+            left: "5.72%",
+            top: "45%",
+            width: "49.5%",
+            fontSize: fig(11, 0.95),
+            paddingInline: "1rem",
+          }}
+        >
+          VIEW ALL MOTORCYCLES
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+
+        {/* Bike: Figma x=77 y=357 w=369 h=228. */}
+        <div
+          className="absolute"
+          style={{ left: "19.2%", top: "49%", width: "91.8%", height: "37.5%" }}
+        >
+          <Image
+            src="/brand/hero-bike.webp"
+            alt="Honda sports motorcycle in black, side view"
+            fill
+            priority
+            sizes="92vw"
+            className="object-contain"
+          />
+        </div>
+
+        <MobileCallouts />
+
+        <span className={chip} style={{ ...label, left: "1.5%", top: "66.6%" }}>
+          Handling
+        </span>
+        <span className={chip} style={{ ...label, left: "79.5%", top: "49.7%" }}>
+          Comfort
+        </span>
+        <span className={chip} style={{ ...label, left: "78.9%", top: "86.7%" }}>
+          Speed
+        </span>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------- desktop */
+
+function DesktopCallouts() {
   return (
     <svg
       viewBox="0 0 999 618"
@@ -16,78 +195,77 @@ function CalloutLines() {
       aria-hidden
       className="absolute inset-0 h-full w-full"
     >
-      <g stroke="#2f6fe0" strokeWidth="2.5">
+      <g stroke="#001a34" strokeWidth="2">
         {/* handling → front brake */}
         <line x1="70" y1="330" x2="250" y2="286" />
         {/* comfort → seat */}
-        <line x1="905" y1="150" x2="700" y2="300" />
+        <line x1="820" y1="150" x2="700" y2="300" />
         {/* speed → engine block */}
         <line x1="700" y1="565" x2="560" y2="405" />
       </g>
-      <g fill="#2f6fe0">
-        <circle cx="70" cy="330" r="7" />
-        <circle cx="905" cy="150" r="7" />
-        <circle cx="700" cy="565" r="7" />
+      <g fill="#001a34">
+        <circle cx="250" cy="286" r="6" />
+        <circle cx="700" cy="300" r="6" />
+        <circle cx="560" cy="405" r="6" />
       </g>
     </svg>
   );
 }
 
-/** Small uppercase label anchored in percentages of the bike box. */
-function Label({ text, className }: { text: string; className: string }) {
+/**
+ * Labels sit at the outer end of their own line, vertically centred on it, and
+ * carry the same cream chip as the mobile ones — SPEED in particular lands on
+ * the black rear tyre, where plain navy type disappears.
+ */
+function DesktopLabel({ text, className }: { text: string; className: string }) {
   return (
     <span
-      className={`pointer-events-none absolute font-heading text-[0.625rem] uppercase tracking-wide text-navy lg:text-sm ${className}`}
+      className={`pointer-events-none absolute -translate-y-1/2 rounded-[3px] bg-cream/95 px-2 py-1 font-heading text-sm uppercase tracking-wide text-navy ${className}`}
     >
       {text}
     </span>
   );
 }
 
-export function Hero() {
+function HeroDesktop() {
   return (
-    <section className="relative overflow-hidden bg-cream pb-8">
-      {/* Solid navy stripe. The road photograph sits behind it at low opacity so
-          the band keeps the texture from the Figma file while reading as the
-          flat navy of the reference mockup. Drop the <Image> for pure navy. */}
-      <div className="road-band absolute inset-y-0 right-0 w-full bg-band">
+    <section className="relative hidden overflow-hidden bg-cream pb-6 lg:block">
+      <div className="road-band absolute inset-y-0 right-0 w-full">
         <Image
           src="/brand/road-band.webp"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-40 mix-blend-overlay"
+          className="object-cover"
         />
+        <div className={`absolute inset-0 ${BAND_OVERLAY}`} />
       </div>
 
-      {/* Brand mark on the band — a sibling of the clipped element so the
-          clip-path cannot cut it off. */}
+      {/* Brand mark centred in the band's visible width at its own height. */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20">
         <Image
           src="/brand/logo-light.webp"
           alt=""
-          width={560}
-          height={418}
-          className="ml-[74%] mt-[4.5rem] w-20 lg:ml-[64%] lg:mt-12 lg:w-32"
+          width={600}
+          height={171}
+          className="ml-[67%] mt-12 w-32"
         />
       </div>
 
-      <div className="shell relative z-10 pt-10 lg:pt-16">
-        <div className="max-w-[15rem] sm:max-w-[22rem] md:max-w-[32rem] lg:max-w-[46rem]">
-          <h1 className="text-[4rem] leading-[0.92] sm:text-7xl md:text-8xl lg:text-[6.5rem]">
-            Not just bikes
-          </h1>
-          <p className="mt-4 font-heading text-lg uppercase leading-tight sm:text-xl lg:mt-5 lg:whitespace-nowrap lg:text-[2rem]">
+      <div className="shell relative z-10 pt-16">
+        <div className="max-w-[46rem]">
+          <h1 className="text-[6.5rem] leading-[0.92]">Not just bikes</h1>
+          <p className="mt-5 whitespace-nowrap font-heading text-[2rem] uppercase leading-tight">
             Where passion meets the ground
           </p>
-          <p className="mt-4 text-[0.9375rem] leading-relaxed text-slate lg:mt-6 lg:max-w-md lg:text-lg">
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-slate">
             Quality used and new bikes, checked, ridden, and sold straight. No
             surprises, no hidden fees.
           </p>
           <Link
             href="/bikes"
-            className="btn btn-primary mt-7 gap-4 px-7 py-4 text-[0.8125rem] tracking-wide lg:mt-9 lg:text-[0.9375rem]"
+            className="btn btn-primary mt-9 gap-4 px-7 py-4 tracking-wide"
           >
             VIEW ALL MOTORCYCLES
             <ArrowRight className="h-5 w-5" />
@@ -95,58 +273,49 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Bike, callout lines and labels share one box so they scale together. */}
-      <div className="relative z-10 mt-6 lg:-mt-44">
-        <div className="relative mx-auto aspect-[999/618] w-[115%] max-w-none translate-x-[14%] lg:w-[72%] lg:translate-x-[18%]">
+      <div className="relative z-10 -mt-44">
+        <div className="relative mx-auto aspect-[999/618] w-[72%] max-w-none translate-x-[18%]">
           <Image
             src="/brand/hero-bike.webp"
             alt="Honda sports motorcycle in black, side view"
             fill
             priority
-            sizes="(max-width: 1024px) 115vw, 72vw"
+            sizes="72vw"
             className="object-contain"
           />
-          <CalloutLines />
+          <DesktopCallouts />
 
-          <Label text="Handling" className="-left-[8%] top-[45%] -translate-y-7 lg:left-[2%]" />
-          <Label text="Comfort" className="right-[34%] top-[18%] -translate-y-7 text-white lg:right-[6%] lg:text-navy" />
-          <Label text="Speed" className="left-[62%] top-[93%] lg:left-[66%]" />
+          <DesktopLabel text="Handling" className="right-[94%] top-[53.4%]" />
+          <DesktopLabel text="Comfort" className="left-[83.1%] top-[24.3%]" />
+          <DesktopLabel text="Speed" className="left-[71.1%] top-[91.4%]" />
         </div>
       </div>
 
-      {/* Social-proof card, as a card rather than the old outlined pill. */}
-      <div className="shell relative z-10 mt-2 lg:absolute lg:bottom-10 lg:left-0 lg:mt-0 lg:max-w-md">
+      {/* Fills the empty lower-left of the composition. Positioned against the
+          section, not inside .shell — that centres its own max-width. */}
+      <div className="absolute bottom-10 left-12 z-10">
         <div className="flex items-center gap-4 rounded-2xl bg-white px-5 py-3 shadow-[0_10px_30px_rgba(0,26,52,0.10)]">
           <Image
             src="/brand/bike-red.webp"
             alt=""
             width={480}
             height={359}
-            className="w-16 shrink-0 lg:w-20"
+            className="w-20 shrink-0"
           />
-          <span className="flex-1 font-heading text-xs uppercase tracking-wide lg:text-sm">
+          <span className="font-heading text-sm uppercase tracking-wide">
             +150 bikes sold
           </span>
-          <span className="h-8 w-px bg-line" aria-hidden />
-          <ArrowRight className="h-5 w-5 shrink-0 text-navy" />
         </div>
       </div>
-
-      {/* Scroll cue from the mockup. */}
-      <div className="relative z-10 mt-6 flex justify-center lg:absolute lg:bottom-4 lg:left-1/2 lg:mt-0 lg:-translate-x-1/2">
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden
-          className="h-6 w-6 text-navy"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M6 9l6 6 6-6" />
-        </svg>
-      </div>
     </section>
+  );
+}
+
+export function Hero() {
+  return (
+    <>
+      <HeroMobile />
+      <HeroDesktop />
+    </>
   );
 }

@@ -133,12 +133,15 @@
   }
 }
 
-/* The angled band from the hero: a straight stripe leaning left as it falls,
-   drawn with a clip-path polygon so the angle holds at any viewport width.
-   Percentages are read off the reference mockup — a narrow stripe on phones,
-   wider and shallower on desktop where there is more horizontal room. */
+/* The angled band, drawn as a clip-path polygon so the lean holds at any
+   viewport width.
+
+   Mobile percentages come straight from the Figma iPhone frame: the band is
+   229px wide on a 402px frame starting at x=313 (78%), rotated about 12°,
+   which over the 608px-tall hero box shifts it 32% to the left by the bottom.
+   Desktop keeps the shallower stripe. */
 .road-band {
-  clip-path: polygon(80% 0, 102% 0, 66% 100%, 43% 100%);
+  clip-path: polygon(78% 0, 135% 0, 103% 100%, 46% 100%);
 }
 
 @media (width >= 64rem) {
