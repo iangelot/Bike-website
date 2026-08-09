@@ -3,163 +3,149 @@ import Link from "next/link";
 import { ArrowRight } from "./icons";
 
 /**
- * Curved pointer drawn from a label toward the bike. The Figma arrows were
- * loose vectors sitting outside the desktop frame — which is why they never
- * appeared in that export — so they are re-authored here as SVG that scales.
+ * Callout lines are drawn as one SVG sharing the bike image's viewBox, so each
+ * line always ends on the same part of the motorcycle however the image is
+ * scaled. Thin line plus a dot, per the reference mockup — the earlier fat
+ * curved arrows were much heavier than the design wants.
  */
-function Pointer({ flip = false }: { flip?: boolean }) {
+function CalloutLines() {
   return (
     <svg
-      viewBox="0 0 80 48"
+      viewBox="0 0 999 618"
       fill="none"
       aria-hidden
-      className={`h-5 w-9 shrink-0 lg:h-10 lg:w-16 ${flip ? "-scale-x-100" : ""}`}
+      className="absolute inset-0 h-full w-full"
     >
-      <path
-        d="M2 4C22 4 46 12 66 38"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M56 34l12 6-4-12"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <g stroke="#2f6fe0" strokeWidth="2.5">
+        {/* handling → front brake */}
+        <line x1="70" y1="330" x2="250" y2="286" />
+        {/* comfort → seat */}
+        <line x1="905" y1="150" x2="700" y2="300" />
+        {/* speed → engine block */}
+        <line x1="700" y1="565" x2="560" y2="405" />
+      </g>
+      <g fill="#2f6fe0">
+        <circle cx="70" cy="330" r="7" />
+        <circle cx="905" cy="150" r="7" />
+        <circle cx="700" cy="565" r="7" />
+      </g>
     </svg>
   );
 }
 
-/**
- * A label anchored in percentages of the bike box rather than pixels, so the
- * pointer keeps aiming at the same part of the motorcycle at every width.
- */
-function Annotation({
-  label,
-  side,
-  className,
-  tone = "dark",
-}: {
-  label: string;
-  side: "left" | "right";
-  className: string;
-  /** Labels that land on the navy band need light type to stay readable. */
-  tone?: "dark" | "light";
-}) {
+/** Small uppercase label anchored in percentages of the bike box. */
+function Label({ text, className }: { text: string; className: string }) {
   return (
-    <div
-      className={`pointer-events-none absolute flex items-center gap-1 ${
-        tone === "light" ? "text-white" : "text-navy"
-      } ${className}`}
+    <span
+      className={`pointer-events-none absolute font-heading text-[0.625rem] uppercase tracking-wide text-navy lg:text-sm ${className}`}
     >
-      {side === "right" && <Pointer flip />}
-      <span className="font-heading text-[0.625rem] uppercase tracking-wide lg:text-xl">
-        {label}
-      </span>
-      {side === "left" && <Pointer />}
-    </div>
+      {text}
+    </span>
   );
 }
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pb-16 lg:pb-6">
-      {/* Angled road band, running to the very top of the page and past the
-          bottom edge, clipped by the section. */}
-      <div className="road-band absolute -top-[2%] bottom-[-12%] right-0 w-[52%] sm:w-[46%] lg:w-[42%]">
+    <section className="relative overflow-hidden bg-cream pb-8">
+      {/* Solid navy stripe. The road photograph sits behind it at low opacity so
+          the band keeps the texture from the Figma file while reading as the
+          flat navy of the reference mockup. Drop the <Image> for pure navy. */}
+      <div className="road-band absolute inset-y-0 right-0 w-full bg-band">
         <Image
           src="/brand/road-band.webp"
           alt=""
           fill
           priority
-          sizes="(max-width: 1024px) 52vw, 42vw"
-          className="object-cover"
+          sizes="100vw"
+          className="object-cover opacity-40 mix-blend-overlay"
         />
-        <div className="absolute inset-0 bg-navy/65" />
       </div>
 
-      {/* Brand mark on the band. Deliberately a sibling of the clipped element:
-          when it lived inside, the clip-path cut it off — the "going high up
-          and not even seen" problem. Offsets are relative to the band's own
-          box so it stays centred in the visible part at every width. */}
-      <div className="pointer-events-none absolute right-0 top-0 z-20 w-[52%] sm:w-[46%] lg:w-[42%]">
+      {/* Brand mark on the band — a sibling of the clipped element so the
+          clip-path cannot cut it off. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20">
         <Image
           src="/brand/logo-light.webp"
           alt=""
           width={560}
           height={418}
-          className="ml-[42%] mt-16 w-[4.5rem] lg:ml-[45%] lg:mt-5 lg:w-28"
+          className="ml-[74%] mt-[4.5rem] w-20 lg:ml-[64%] lg:mt-12 lg:w-32"
         />
       </div>
 
-      {/* Text column is deliberately narrow at small sizes so it can never run
-          underneath the band. Top padding clears the overlaid header. */}
-      <div className="shell relative z-10 pt-24 lg:pt-32">
-        <div className="max-w-[13.5rem] sm:max-w-[20rem] md:max-w-[32rem] lg:max-w-[56rem]">
-          <h1 className="text-[2.375rem] sm:text-5xl md:text-6xl lg:text-[5.5rem]">
+      <div className="shell relative z-10 pt-10 lg:pt-16">
+        <div className="max-w-[15rem] sm:max-w-[22rem] md:max-w-[32rem] lg:max-w-[46rem]">
+          <h1 className="text-[4rem] leading-[0.92] sm:text-7xl md:text-8xl lg:text-[6.5rem]">
             Not just bikes
           </h1>
-          <p className="mt-3 font-heading text-base uppercase leading-tight sm:text-xl lg:mt-4 lg:whitespace-nowrap lg:text-[2.15rem]">
+          <p className="mt-4 font-heading text-lg uppercase leading-tight sm:text-xl lg:mt-5 lg:whitespace-nowrap lg:text-[2rem]">
             Where passion meets the ground
           </p>
-          <p className="mt-4 text-sm leading-relaxed text-slate lg:mt-6 lg:max-w-md lg:text-lg">
+          <p className="mt-4 text-[0.9375rem] leading-relaxed text-slate lg:mt-6 lg:max-w-md lg:text-lg">
             Quality used and new bikes, checked, ridden, and sold straight. No
             surprises, no hidden fees.
           </p>
-          <Link href="/bikes" className="btn btn-primary mt-6 text-[0.8125rem] lg:mt-8 lg:text-[0.9375rem]">
-            View all motorcycles
-            <ArrowRight className="h-4 w-4" />
+          <Link
+            href="/bikes"
+            className="btn btn-primary mt-7 gap-4 px-7 py-4 text-[0.8125rem] tracking-wide lg:mt-9 lg:text-[0.9375rem]"
+          >
+            VIEW ALL MOTORCYCLES
+            <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
       </div>
 
-      {/* Bike and its annotations share one box, so labels travel with it. */}
-      <div className="relative z-10 mt-3 lg:-mt-40">
-        <div className="relative mx-auto aspect-[999/618] w-[95%] max-w-none translate-x-[12%] lg:w-[76%] lg:translate-x-[20%]">
+      {/* Bike, callout lines and labels share one box so they scale together. */}
+      <div className="relative z-10 mt-6 lg:-mt-44">
+        <div className="relative mx-auto aspect-[999/618] w-[115%] max-w-none translate-x-[14%] lg:w-[72%] lg:translate-x-[18%]">
           <Image
             src="/brand/hero-bike.webp"
             alt="Honda sports motorcycle in black, side view"
             fill
             priority
-            sizes="(max-width: 1024px) 95vw, 76vw"
+            sizes="(max-width: 1024px) 115vw, 72vw"
             className="object-contain"
           />
+          <CalloutLines />
 
-          <Annotation
-            label="Comfort"
-            side="right"
-            tone="light"
-            className="left-[54%] top-[1%] lg:left-[70%] lg:top-[2%]"
-          />
-          <Annotation
-            label="Handling"
-            side="left"
-            className="-left-[13%] top-[52%] lg:-left-[9%] lg:top-[46%]"
-          />
-          <Annotation
-            label="Speed"
-            side="right"
-            tone="light"
-            className="left-[50%] top-[94%] lg:left-[74%] lg:top-[88%]"
-          />
+          <Label text="Handling" className="-left-[8%] top-[45%] -translate-y-7 lg:left-[2%]" />
+          <Label text="Comfort" className="right-[34%] top-[18%] -translate-y-7 text-white lg:right-[6%] lg:text-navy" />
+          <Label text="Speed" className="left-[62%] top-[93%] lg:left-[66%]" />
         </div>
       </div>
 
-      {/* Social proof pill. Absolute on desktop so it fills the empty lower-left
-          of the composition instead of adding height below the bike. */}
-      <div className="shell relative z-10 mt-6 lg:absolute lg:bottom-12 lg:left-0 lg:mt-0">
-        <div className="inline-flex items-center gap-3 rounded-pill border-[2.5px] border-navy bg-cream px-4 py-2.5">
-          <span className="flex items-center">
-            <Image src="/brand/bike-red.webp" alt="" width={480} height={359} className="w-9 lg:w-12" />
-            <Image src="/brand/hero-bike.webp" alt="" width={999} height={618} className="-ml-3 w-9 lg:w-12" />
-            <Image src="/brand/bike-blue.webp" alt="" width={480} height={289} className="-ml-3 w-9 lg:w-12" />
-          </span>
-          <span className="font-heading text-[0.6875rem] uppercase tracking-wide lg:text-sm">
+      {/* Social-proof card, as a card rather than the old outlined pill. */}
+      <div className="shell relative z-10 mt-2 lg:absolute lg:bottom-10 lg:left-0 lg:mt-0 lg:max-w-md">
+        <div className="flex items-center gap-4 rounded-2xl bg-white px-5 py-3 shadow-[0_10px_30px_rgba(0,26,52,0.10)]">
+          <Image
+            src="/brand/bike-red.webp"
+            alt=""
+            width={480}
+            height={359}
+            className="w-16 shrink-0 lg:w-20"
+          />
+          <span className="flex-1 font-heading text-xs uppercase tracking-wide lg:text-sm">
             +150 bikes sold
           </span>
+          <span className="h-8 w-px bg-line" aria-hidden />
+          <ArrowRight className="h-5 w-5 shrink-0 text-navy" />
         </div>
+      </div>
+
+      {/* Scroll cue from the mockup. */}
+      <div className="relative z-10 mt-6 flex justify-center lg:absolute lg:bottom-4 lg:left-1/2 lg:mt-0 lg:-translate-x-1/2">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden
+          className="h-6 w-6 text-navy"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
       </div>
     </section>
   );

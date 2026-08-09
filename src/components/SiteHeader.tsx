@@ -18,9 +18,9 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="absolute inset-x-0 top-0 z-50">
-      <div className="shell flex items-center justify-between gap-6 py-5">
-        <Logo className="lg:hidden" />
+    <header className="relative z-50 border-b border-line bg-cream">
+      <div className="shell flex items-center justify-between gap-6 py-4">
+        <Logo />
 
         <nav className="hidden items-center gap-10 lg:flex" aria-label="Main">
           {nav.map((item) => (
@@ -42,14 +42,24 @@ export function SiteHeader() {
           </a>
         </nav>
 
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          aria-label={open ? "Close menu" : "Open menu"}
-          className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] lg:hidden"
-        >
+        <div className="flex items-center gap-3 lg:hidden">
+          <a
+            href={whatsappLink(`Hello ${site.name}, I'd like to buy a bike.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary px-6 py-2.5 text-[0.8125rem]"
+          >
+            BUY
+          </a>
+
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            aria-label={open ? "Close menu" : "Open menu"}
+            className="flex h-11 w-11 flex-col items-center justify-center gap-[5px]"
+          >
           <span
             className={`block h-[3px] w-7 rounded-full bg-navy transition-transform ${
               open ? "translate-y-2 rotate-45" : ""
@@ -64,8 +74,9 @@ export function SiteHeader() {
             className={`block h-[3px] w-7 rounded-full bg-navy transition-transform ${
               open ? "-translate-y-2 -rotate-45" : ""
             }`}
-          />
-        </button>
+            />
+          </button>
+        </div>
       </div>
 
       {open && (

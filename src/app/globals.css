@@ -10,11 +10,14 @@
 @theme {
   --color-cream: #f8f3f0;
   --color-navy: #001a34;
+  /* Brighter royal navy of the reference mockup's stripe, distinct from the
+     near-black navy used for type. Estimated from the mockup by eye. */
+  --color-band: #1b2a63;
   --color-gold: #f9be18;
   --color-slate: #3d4d5c;
   --color-line: #e5ddd7;
 
-  --font-display: var(--font-archivo), system-ui, sans-serif;
+  --font-display: var(--font-anton), "Arial Narrow", sans-serif;
   --font-heading: var(--font-archivo), system-ui, sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
 
@@ -41,7 +44,7 @@
     font-family: var(--font-display);
     text-transform: uppercase;
     line-height: 0.95;
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
 
   ::selection {
@@ -130,12 +133,18 @@
   }
 }
 
-/* The angled road band from the hero. Figma draws it as a rotated rectangle
-   with the photo scaled inside; in CSS a clip-path polygon is the equivalent
-   that survives arbitrary viewport widths. Percentages keep the angle stable
-   as the container grows. */
+/* The angled band from the hero: a straight stripe leaning left as it falls,
+   drawn with a clip-path polygon so the angle holds at any viewport width.
+   Percentages are read off the reference mockup — a narrow stripe on phones,
+   wider and shallower on desktop where there is more horizontal room. */
 .road-band {
-  clip-path: polygon(38% 0, 100% 0, 62% 100%, 0 100%);
+  clip-path: polygon(80% 0, 102% 0, 66% 100%, 43% 100%);
+}
+
+@media (width >= 64rem) {
+  .road-band {
+    clip-path: polygon(64% 0, 88% 0, 58% 100%, 34% 100%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
