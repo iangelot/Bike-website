@@ -1,31 +1,26 @@
 import type { Metadata } from "next";
-import { Anton, Archivo_Black, Inter } from "next/font/google";
+import { Inter, Oswald } from "next/font/google";
 import { site } from "@/lib/site";
 import "./globals.css";
 
 /**
- * Three families, all free and self-hosted by next/font.
+ * Two families, both free and self-hosted by next/font, matching what the
+ * Figma file actually specifies.
  *
- * Anton sets the display headings. It was briefly swapped for Archivo Black,
- * but the reference mockup's headline is condensed — "NOT JUST" occupying
- * ~235px at that size is only achievable with a condensed face.
+ * Oswald Medium is the display face for every heading in both frames — the
+ * hero headline (96px desktop / 48px mobile), the section titles, the prices.
+ * An earlier pass guessed Anton and Archivo Black from the screenshots; the
+ * design context confirms Oswald, which is lighter and slightly wider.
  *
- * The Figma file also specified Helvetica Neue (not a web font — it silently
- * becomes Arial off macOS) and "FONTSPRING DEMO - Visby CF Extra Bold", a trial
- * font that cannot be licensed for a live site. Inter and Archivo Black stand
- * in for those respectively.
+ * Everything else in the file is Helvetica Neue, which is not a web font (it
+ * silently degrades to Arial off macOS). Inter stands in for it: same
+ * neo-grotesque skeleton, and it ships real Medium and Regular weights rather
+ * than letting the browser synthesise them.
  */
-const anton = Anton({
+const oswald = Oswald({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-anton",
-  display: "swap",
-});
-
-const archivo = Archivo_Black({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-archivo",
+  weight: ["400", "500", "600"],
+  variable: "--font-oswald",
   display: "swap",
 });
 
@@ -55,10 +50,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`${anton.variable} ${archivo.variable} ${inter.variable}`}
-    >
+    <html lang="en" className={`${oswald.variable} ${inter.variable}`}>
       <body>{children}</body>
     </html>
   );

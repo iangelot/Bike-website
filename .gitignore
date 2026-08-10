@@ -10,3 +10,5 @@ build/
 .vscode/
 .idea/
 next-env.d.ts
+
+tsconfig.tsbuildinfo

@@ -14,10 +14,31 @@ export const site = {
    */
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? "237600000000",
 
+  /**
+   * PLACEHOLDERS — the Figma footer is an empty navy block, so none of these
+   * came from the design. Replace them with the real shop details before this
+   * goes live; they are the only invented facts on the page.
+   */
+  phoneDisplay: "+237 6 00 00 00 00",
+  phone: "+237600000000",
+  email: "hello@rageride.com",
+  address: "Douala, Cameroon",
+  hours: "Mon–Sat, 9:00 – 18:00",
+
   /** Currency chosen during design review: US Dollars. */
   currency: "USD",
   locale: "en-US",
 } as const;
+
+/**
+ * Social profiles. Also placeholders — swap in the real handles, or delete an
+ * entry and the footer drops that icon without any other change.
+ */
+export const socials = [
+  { label: "Instagram", href: "https://instagram.com/rageride", icon: "instagram" },
+  { label: "Facebook", href: "https://facebook.com/rageride", icon: "facebook" },
+  { label: "TikTok", href: "https://tiktok.com/@rageride", icon: "tiktok" },
+] as const;
 
 export const nav = [
   { label: "Home", href: "/" },

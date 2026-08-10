@@ -60,7 +60,7 @@ function HeroMobile() {
   } as const;
 
   /* Plain navy type, no backing plate — as the Figma draws it. */
-  const chip = "absolute font-heading uppercase text-navy";
+  const chip = "absolute font-medium uppercase text-navy";
 
   return (
     <section className="relative overflow-hidden bg-cream lg:hidden">
@@ -89,12 +89,12 @@ function HeroMobile() {
         />
 
         <h1
-          className="absolute text-navy"
+          className="absolute uppercase text-navy"
           style={{
             left: "5.72%",
             top: "5.6%",
             fontSize: fig(48, 4),
-            lineHeight: 1.06,
+            lineHeight: 0.95,
           }}
         >
           Not just
@@ -103,7 +103,7 @@ function HeroMobile() {
         </h1>
 
         <p
-          className="absolute font-heading uppercase text-navy"
+          className="absolute font-medium uppercase text-navy"
           style={{
             left: "5.72%",
             top: "25.7%",
@@ -213,7 +213,7 @@ function DesktopCallouts() {
 function DesktopLabel({ text, className }: { text: string; className: string }) {
   return (
     <span
-      className={`pointer-events-none absolute -translate-y-1/2 rounded-[3px] bg-cream/95 px-2 py-1 font-heading text-sm uppercase tracking-wide text-navy ${className}`}
+      className={`pointer-events-none absolute -translate-y-1/2 rounded-[3px] bg-cream/95 px-2 py-1 font-medium text-sm uppercase tracking-wide text-navy ${className}`}
     >
       {text}
     </span>
@@ -248,8 +248,10 @@ function HeroDesktop() {
 
       <div className="shell relative z-10 pt-16">
         <div className="max-w-[46rem]">
-          <h1 className="text-[6.5rem] leading-[0.92]">Not just bikes</h1>
-          <p className="mt-5 whitespace-nowrap font-heading text-[2rem] uppercase leading-tight">
+          {/* 96px in the Figma desktop frame, with "NOT JUST" and "BIKES" on a
+              96px pitch — so leading is exactly 1. */}
+          <h1 className="text-[6rem] uppercase leading-none">Not just bikes</h1>
+          <p className="mt-5 whitespace-nowrap font-medium text-[2rem] uppercase leading-tight">
             Where passion meets the ground
           </p>
           <p className="mt-6 max-w-md text-lg leading-relaxed text-slate">
@@ -295,7 +297,7 @@ function HeroDesktop() {
             height={359}
             className="w-20 shrink-0"
           />
-          <span className="font-heading text-sm uppercase tracking-wide">
+          <span className="font-medium text-sm uppercase tracking-wide">
             +150 bikes sold
           </span>
         </div>

@@ -3,9 +3,16 @@
 /* ---------------------------------------------------------------------------
    Design tokens
    Colours are sampled from the Figma file (MwX5EjWKd6umH4i5RcMgqZ) rather than
-   guessed. The one deliberate departure is body copy: the design used #74b4d9
-   on cream, which measures 2.1:1 contrast and fails WCAG AA by a wide margin.
-   It is replaced by --color-slate at 7.9:1.
+   guessed. Two deliberate departures, both for contrast:
+
+   1. Hero body copy used #74b4d9 on cream — 2.1:1, far below WCAG AA. Replaced
+      by --color-slate at 7.9:1.
+   2. The "Contact Us!" button draws white type on gold — 1.9:1. .btn-gold puts
+      navy on gold instead, which is 10.4:1 and keeps the same button colour.
+
+   The page background is the desktop frame's cream. The mobile frame draws its
+   lower sections on pure white; cream was chosen for the whole page so the
+   hero does not butt against a visible seam.
 --------------------------------------------------------------------------- */
 @theme {
   --color-cream: #f8f3f0;
@@ -13,15 +20,16 @@
   /* Brighter royal navy of the reference mockup's stripe, distinct from the
      near-black navy used for type. Estimated from the mockup by eye. */
   --color-band: #1b2a63;
-  --color-gold: #f9be18;
+  --color-gold: #f4bf1f;
   --color-slate: #3d4d5c;
   --color-line: #e5ddd7;
+  /* Flat grey the listing-card photo block sits on, under the road image. */
+  --color-plate: #d4d4d4;
 
-  --font-display: var(--font-anton), "Arial Narrow", sans-serif;
-  --font-heading: var(--font-archivo), system-ui, sans-serif;
+  --font-display: var(--font-oswald), "Arial Narrow", sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
 
-  --radius-card: 1rem;
+  --radius-card: 0.8125rem; /* 13px — the listing card's photo block */
   --radius-pill: 999px;
 }
 
@@ -37,13 +45,15 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* The design is built on uppercase display type; centralised so section
-     headings never have to repeat the same four declarations. */
+  /* Display type is Oswald Medium at a tight leading. Case is NOT forced here:
+     the hero shouts in caps but the section titles ("Featured Listings",
+     "Want To Buy A Bike ?") are title case in the design. */
   h1,
-  h2 {
+  h2,
+  h3 {
     font-family: var(--font-display);
-    text-transform: uppercase;
-    line-height: 0.95;
+    font-weight: 500;
+    line-height: 1;
     letter-spacing: 0;
   }
 
@@ -73,14 +83,29 @@
     }
   }
 
-  /* Section rhythm lifted from the mobile design: small gold eyebrow, big
-     navy heading, then content. Repeating it is what ties the pages together. */
+  /* Section rhythm lifted from the mobile design: small gold eyebrow, then a
+     big navy title. Repeating it is what ties the page together. */
   .eyebrow {
-    font-family: var(--font-heading);
-    font-size: 0.875rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.25rem;
+    line-height: 1;
     color: var(--color-gold);
+  }
+
+  /* 36px in the mobile frame, scaled up for the wider desktop measure. */
+  .section-title {
+    font-size: clamp(2.25rem, 8vw, 2.25rem);
+  }
+
+  @media (width >= 64rem) {
+    .eyebrow {
+      font-size: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 3.5rem;
+    }
   }
 
   .btn {
@@ -119,7 +144,7 @@
   }
 
   .btn-gold:hover {
-    background: #ffcb37;
+    background: #ffcf3d;
   }
 
   .btn-outline {
@@ -150,6 +175,37 @@
   }
 }
 
+/* Manufacturer marquee. The track holds the logo run twice and slides exactly
+   one run's width, so the loop point is invisible. Duration lives on the
+   element as --marquee-duration. */
+.marquee {
+  overflow: hidden;
+  /* Feathered edges, so logos enter and leave rather than being chopped. */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-duration, 32s) linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -160,5 +216,17 @@
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* The blanket rule above would leave the marquee strobing through its loop
+     rather than stopping it, so the track is parked and the strip becomes a
+     normal horizontal scroller instead. */
+  .marquee-track {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .marquee {
+    overflow-x: auto;
   }
 }

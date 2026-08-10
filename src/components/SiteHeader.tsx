@@ -91,7 +91,7 @@ export function SiteHeader() {
                 <Link
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="block border-b border-line py-4 font-heading text-lg uppercase text-navy"
+                  className="block border-b border-line py-4 font-medium text-lg uppercase text-navy"
                 >
                   {item.label}
                 </Link>
