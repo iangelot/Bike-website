@@ -29,7 +29,7 @@ export function FeaturedListings() {
         </Link>
       </div>
 
-      <div className="mt-6 grid gap-7 sm:grid-cols-2 lg:mt-10 lg:grid-cols-3 lg:gap-8">
+      <div className="mt-6 grid gap-6 lg:mt-10 lg:grid-cols-2 lg:gap-7">
         {featured.map((bike, i) => (
           <BikeCard key={bike.slug} bike={bike} priority={i === 0} />
         ))}

@@ -20,21 +20,24 @@ export type Photo = {
   /** Written per photo — a listing image is content, not decoration. */
   alt: string;
   /**
-   * CSS object-position for the card crop, e.g. "50% 88%".
+   * CSS object-position for the card crop, e.g. "50% 55%".
    *
-   * Cards are 3:2 and phone photos are portrait, so only about half the frame
-   * height survives the crop — and where the bike sits in that frame is
-   * different in every shot. Centring it clips the wheels on most of them.
-   * Only the lead photo needs this; the gallery crops far less.
+   * The card's photo half is roughly 3:2 and phone photos are portrait, so
+   * only about half the frame height survives the crop — and where the bike
+   * sits in that frame differs in every shot. Centring puts too much sky in
+   * and cuts the wheels off. Only the lead photo needs this; the gallery
+   * crops far less.
    *
-   * Defaults to CARD_FOCUS below, which suits a bike shot side-on from
-   * standing height.
+   * Defaults to CARD_FOCUS below.
    */
   focus?: string;
 };
 
-/** See `Photo.focus`. Lower in the frame than centre, deliberately. */
-export const CARD_FOCUS = "50% 75%";
+/**
+ * See `Photo.focus`. Below centre, because a bike photographed from standing
+ * height sits in the lower half of the frame.
+ */
+export const CARD_FOCUS = "50% 65%";
 
 export type Bike = {
   /** URL segment for the detail page. */
@@ -86,7 +89,6 @@ export const bikes: Bike[] = [
       {
         src: "/bikes/honda-cbr-2014/01-side-left.webp",
         alt: "2014 Honda CBR in gunmetal grey, left-hand side profile, on paddock stands",
-        focus: "50% 88%",
       },
       {
         src: "/bikes/honda-cbr-2014/02-front-left.webp",
@@ -155,6 +157,7 @@ export const bikes: Bike[] = [
     price: 4890,
     cutout: true,
     placeholder: true,
+    featured: true,
     photos: [
       {
         src: "/brand/bike-blue.webp",

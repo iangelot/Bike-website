@@ -56,7 +56,7 @@ export default async function BikesPage({
           </p>
 
           {bikes.length > 0 ? (
-            <div className="mt-6 grid gap-7 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+            <div className="mt-6 grid gap-6 lg:grid-cols-2 lg:gap-7">
               {bikes.map((bike, i) => (
                 <BikeCard key={bike.slug} bike={bike} priority={i < 3} />
               ))}

@@ -61,7 +61,7 @@ export default async function BikePage({ params }: Params) {
     { label: "Warranty", value: bike.warranty },
   ].filter((spec): spec is { label: string; value: string } => Boolean(spec.value));
 
-  const related = getRelatedBikes(bike);
+  const related = getRelatedBikes(bike, 4);
 
   const enquiry = whatsappLink(
     `Hello ${site.name}, I'm interested in the ${bike.year} ${bike.make} ${bike.model} listed at ${formatPrice(bike.price)}.`,
@@ -133,7 +133,7 @@ export default async function BikePage({ params }: Params) {
             <h2 id="related-heading" className="section-title text-center">
               You might also like
             </h2>
-            <div className="mt-8 grid gap-7 sm:grid-cols-2 lg:mt-10 lg:grid-cols-3 lg:gap-8">
+            <div className="mt-8 grid gap-6 lg:mt-10 lg:grid-cols-2 lg:gap-7">
               {related.map((other) => (
                 <BikeCard key={other.slug} bike={other} />
               ))}

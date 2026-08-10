@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   MailIcon,
-  PhoneIcon,
   PinIcon,
   SocialIcon,
   WhatsAppIcon,
@@ -81,13 +80,21 @@ export function SiteFooter() {
             Contact
           </h2>
           <ul className="mt-5 flex flex-col gap-3.5 text-[0.9375rem] text-white/80">
+            {/* No tel: link, by design — the number is WhatsApp only and does
+                not take voice calls. See the note in site.ts. */}
             <li>
               <a
-                href={`tel:${site.phone}`}
-                className="flex items-center gap-3 underline-offset-4 transition-colors hover:text-gold hover:underline"
+                href={whatsappLink(`Hello ${site.name}, I'd like to buy a bike.`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-3 underline-offset-4 transition-colors hover:text-gold hover:underline"
               >
-                <PhoneIcon className="h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />
-                {site.phoneDisplay}
+                <WhatsAppIcon className="mt-0.5 h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />
+                <span>
+                  {site.whatsappDisplay}
+                  <br />
+                  <span className="text-white/60">WhatsApp only — no calls</span>
+                </span>
               </a>
             </li>
             {site.email ? (
@@ -101,17 +108,6 @@ export function SiteFooter() {
                 </a>
               </li>
             ) : null}
-            <li>
-              <a
-                href={whatsappLink(`Hello ${site.name}, I'd like to buy a bike.`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 underline-offset-4 transition-colors hover:text-gold hover:underline"
-              >
-                <WhatsAppIcon className="h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />
-                WhatsApp us
-              </a>
-            </li>
             {site.address ? (
               <li className="flex items-start gap-3">
                 <PinIcon className="mt-0.5 h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />

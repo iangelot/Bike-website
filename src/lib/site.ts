@@ -9,13 +9,17 @@ export const site = {
   tagline: "Where passion meets the ground",
 
   /**
+   * WhatsApp is the ONLY way to reach the shop — the number does not take
+   * voice calls, so there is deliberately no tel: link anywhere on the site.
+   * Printing a callable number would send buyers to a line nobody answers.
+   *
    * International format, digits only — this is what wa.me expects.
    * Set NEXT_PUBLIC_WHATSAPP to override without a rebuild.
    */
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? "16082099441",
 
-  phoneDisplay: "+1 (608) 209-9441",
-  phone: "+16082099441",
+  /** Shown next to the WhatsApp link so buyers can save the contact. */
+  whatsappDisplay: "+1 (608) 209-9441",
 
   /**
    * NOT SUPPLIED YET. Every one of these is optional and the footer simply
