@@ -10,35 +10,40 @@ export const site = {
 
   /**
    * International format, digits only — this is what wa.me expects.
-   * Cameroon is +237. Set NEXT_PUBLIC_WHATSAPP to override without a rebuild.
+   * Set NEXT_PUBLIC_WHATSAPP to override without a rebuild.
    */
-  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? "237600000000",
+  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? "16082099441",
+
+  phoneDisplay: "+1 (608) 209-9441",
+  phone: "+16082099441",
 
   /**
-   * PLACEHOLDERS — the Figma footer is an empty navy block, so none of these
-   * came from the design. Replace them with the real shop details before this
-   * goes live; they are the only invented facts on the page.
+   * NOT SUPPLIED YET. Every one of these is optional and the footer simply
+   * omits the row when it is undefined — a made-up shop address or an email
+   * nobody reads is worse than a shorter footer, because a visitor will
+   * actually try to use it. Fill them in and the rows come back.
    */
-  phoneDisplay: "+237 6 00 00 00 00",
-  phone: "+237600000000",
-  email: "hello@rageride.com",
-  address: "Douala, Cameroon",
-  hours: "Mon–Sat, 9:00 – 18:00",
+  email: undefined as string | undefined,
+  address: undefined as string | undefined,
+  hours: undefined as string | undefined,
 
-  /** Currency chosen during design review: US Dollars. */
+  /** US Dollars — the shop and its stock are US-based. */
   currency: "USD",
   locale: "en-US",
 } as const;
 
+export type Social = {
+  label: string;
+  href: string;
+  icon: "instagram" | "facebook" | "tiktok";
+};
+
 /**
- * Social profiles. Also placeholders — swap in the real handles, or delete an
- * entry and the footer drops that icon without any other change.
+ * Social profiles. Empty until the real handles arrive — the footer drops the
+ * whole icon row rather than linking to profiles that may not exist or, worse,
+ * may belong to someone else. Add an entry and its icon appears.
  */
-export const socials = [
-  { label: "Instagram", href: "https://instagram.com/rageride", icon: "instagram" },
-  { label: "Facebook", href: "https://facebook.com/rageride", icon: "facebook" },
-  { label: "TikTok", href: "https://tiktok.com/@rageride", icon: "tiktok" },
-] as const;
+export const socials: Social[] = [];
 
 export const nav = [
   { label: "Home", href: "/" },

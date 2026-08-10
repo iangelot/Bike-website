@@ -39,21 +39,23 @@ export function SiteFooter() {
             straight — no surprises, no hidden fees.
           </p>
 
-          <ul className="mt-7 flex gap-3">
-            {socials.map((social) => (
-              <li key={social.label}>
-                <a
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${site.name} on ${social.label}`}
-                  className="grid size-10 place-items-center rounded-full border border-white/25 text-white transition-colors hover:border-gold hover:text-gold"
-                >
-                  <SocialIcon name={social.icon} />
-                </a>
-              </li>
-            ))}
-          </ul>
+          {socials.length > 0 ? (
+            <ul className="mt-7 flex gap-3">
+              {socials.map((social) => (
+                <li key={social.label}>
+                  <a
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${site.name} on ${social.label}`}
+                    className="grid size-10 place-items-center rounded-full border border-white/25 text-white transition-colors hover:border-gold hover:text-gold"
+                  >
+                    <SocialIcon name={social.icon} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
 
         <nav aria-label="Footer">
@@ -88,15 +90,17 @@ export function SiteFooter() {
                 {site.phoneDisplay}
               </a>
             </li>
-            <li>
-              <a
-                href={`mailto:${site.email}`}
-                className="flex items-center gap-3 underline-offset-4 transition-colors hover:text-gold hover:underline"
-              >
-                <MailIcon className="h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />
-                {site.email}
-              </a>
-            </li>
+            {site.email ? (
+              <li>
+                <a
+                  href={`mailto:${site.email}`}
+                  className="flex items-center gap-3 underline-offset-4 transition-colors hover:text-gold hover:underline"
+                >
+                  <MailIcon className="h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />
+                  {site.email}
+                </a>
+              </li>
+            ) : null}
             <li>
               <a
                 href={whatsappLink(`Hello ${site.name}, I'd like to buy a bike.`)}
@@ -108,14 +112,20 @@ export function SiteFooter() {
                 WhatsApp us
               </a>
             </li>
-            <li className="flex items-start gap-3">
-              <PinIcon className="mt-0.5 h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />
-              <span>
-                {site.address}
-                <br />
-                <span className="text-white/60">{site.hours}</span>
-              </span>
-            </li>
+            {site.address ? (
+              <li className="flex items-start gap-3">
+                <PinIcon className="mt-0.5 h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />
+                <span>
+                  {site.address}
+                  {site.hours ? (
+                    <>
+                      <br />
+                      <span className="text-white/60">{site.hours}</span>
+                    </>
+                  ) : null}
+                </span>
+              </li>
+            ) : null}
           </ul>
         </div>
       </div>
