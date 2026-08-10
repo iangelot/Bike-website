@@ -102,6 +102,22 @@ export function getAllBikes(): Bike[] {
   return bikes;
 }
 
+export function getBikeBySlug(slug: string): Bike | undefined {
+  return bikes.find((bike) => bike.slug === slug);
+}
+
+/**
+ * Bikes to show under a listing. Same make first, because someone looking at a
+ * Honda is more likely to want another Honda than whatever happens to be next
+ * in the array; anything else fills the remaining slots.
+ */
+export function getRelatedBikes(bike: Bike, limit = 3): Bike[] {
+  const others = bikes.filter((candidate) => candidate.slug !== bike.slug);
+  const sameMake = others.filter((candidate) => candidate.make === bike.make);
+  const rest = others.filter((candidate) => candidate.make !== bike.make);
+  return [...sameMake, ...rest].slice(0, limit);
+}
+
 /** Populates the "All Makes" filter, so it can never drift from the stock. */
 export function getMakes(): string[] {
   return [...new Set(bikes.map((bike) => bike.make))].sort();
