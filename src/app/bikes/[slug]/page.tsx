@@ -56,6 +56,7 @@ export default async function BikePage({ params }: Params) {
     { label: "Model", value: bike.model },
     { label: "Year", value: String(bike.year) },
     { label: "Mileage", value: formatDistance(bike) },
+    { label: "Colour", value: bike.colour },
     { label: "Fuel type", value: bike.fuelType },
     { label: "Location", value: bike.location },
     { label: "Warranty", value: bike.warranty },
