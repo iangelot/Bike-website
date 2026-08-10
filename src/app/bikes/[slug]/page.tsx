@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BikeCard } from "@/components/BikeCard";
+import { BikeGallery } from "@/components/BikeGallery";
 import { ArrowRight, WhatsAppIcon } from "@/components/icons";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import {
-  formatKm,
+  formatDistance,
   getAllBikes,
   getBikeBySlug,
   getRelatedBikes,
@@ -28,21 +28,23 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
   return {
     title: `${bike.make} ${bike.model} (${bike.year})`,
-    description: `${bike.year} ${bike.make} ${bike.model}, ${formatKm(
-      bike.km,
+    description: `${bike.year} ${bike.make} ${bike.model}, ${formatDistance(
+      bike,
     )}, ${formatPrice(bike.price)}. Inspected and vetted by ${site.name}.`,
+    openGraph: {
+      title: `${bike.year} ${bike.make} ${bike.model}`,
+      images: [{ url: bike.photos[0].src }],
+    },
   };
 }
 
 /**
  * A single listing.
  *
- * The photo keeps the card's treatment — the road plate at 20% with the bike
- * floating over it — so a listing looks like the card it was opened from
- * rather than a different design.
- *
- * The spec rows are built from a plain array so extra fields (engine, colour,
- * ABS, service history) become one more entry rather than a layout change.
+ * The spec rows are assembled from the fields that are actually set, so a bike
+ * with no warranty or location noted simply shows fewer rows rather than a
+ * column of blanks — and adding a field (engine, colour, service history) is
+ * one more entry here plus one more key on the type.
  */
 export default async function BikePage({ params }: Params) {
   const { slug } = await params;
@@ -53,8 +55,11 @@ export default async function BikePage({ params }: Params) {
     { label: "Make", value: bike.make },
     { label: "Model", value: bike.model },
     { label: "Year", value: String(bike.year) },
-    { label: "Mileage", value: formatKm(bike.km) },
-  ];
+    { label: "Mileage", value: formatDistance(bike) },
+    { label: "Fuel type", value: bike.fuelType },
+    { label: "Location", value: bike.location },
+    { label: "Warranty", value: bike.warranty },
+  ].filter((spec): spec is { label: string; value: string } => Boolean(spec.value));
 
   const related = getRelatedBikes(bike);
 
@@ -76,25 +81,9 @@ export default async function BikePage({ params }: Params) {
           </Link>
 
           <div className="mt-7 lg:grid lg:grid-cols-[1.15fr_1fr] lg:items-start lg:gap-14">
-            <div className="relative aspect-[3/2] overflow-hidden rounded-card bg-plate">
-              <Image
-                src="/brand/card-road.webp"
-                alt=""
-                fill
-                sizes="(width >= 64rem) 55vw, 92vw"
-                className="object-cover opacity-20"
-              />
-              <Image
-                src={bike.image}
-                alt={bike.alt}
-                fill
-                priority
-                sizes="(width >= 64rem) 55vw, 92vw"
-                className="-scale-x-100 object-contain p-6 drop-shadow-[0_14px_24px_rgba(0,26,52,0.28)]"
-              />
-            </div>
+            <BikeGallery photos={bike.photos} />
 
-            <div className="mt-8 lg:mt-0">
+            <div className="mt-10 lg:mt-0">
               <p className="eyebrow">{bike.year}</p>
               <h1 className="section-title mt-2">
                 {bike.make} {bike.model}
