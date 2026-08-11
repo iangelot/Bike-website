@@ -1,65 +1,53 @@
-# Setting up the database + admin panel
+# Database + admin panel
 
-The site runs today on a built-in list of 12 bikes. These steps connect it to a
-Supabase database so bikes can be added, edited and deleted from a private admin
-page — no code, no rebuild.
+The site's listings live in a Supabase database. Bikes are added, edited and
+deleted from a private admin page — no code, no rebuild — and the public site
+and its search filter update themselves.
 
-You only do **steps 1–3**. Everything after that is wiring I handle.
+## What's already set up
 
----
+- The `bikes` table and its security rules (`supabase/schema.sql`).
+- A public `bike-photos` storage bucket (created via the API).
+- The 12 launch bikes and their photos, loaded in.
+- The admin panel at **`/admin`**.
 
-## 1. Create the Supabase project (~3 min)
+## Environment variables
 
-1. Go to **https://supabase.com** and sign up (free — GitHub or email).
-2. Click **New project**.
-   - **Name:** `rageride` (anything).
-   - **Database password:** pick one and save it somewhere. You won't need it day to day.
-   - **Region:** choose the one closest to your buyers (e.g. East US).
-3. Wait ~2 minutes for it to finish setting up.
+The app reads three values. Locally they live in `.env.local` (git-ignored);
+on the host (e.g. Vercel) they're set as project env vars. See `.env.example`.
 
-## 2. Create the tables
+| Variable | Where |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Settings → API → Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Settings → API → publishable key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Settings → API → secret key (server only) |
 
-1. In the project, open the **SQL Editor** (left sidebar).
-2. Open the file `supabase/schema.sql` from this repo, copy **all** of it.
-3. Paste it into the SQL editor and press **Run**. You should see "Success".
+With none set, the site falls back to the built-in seed inventory and the admin
+is disabled — so it never breaks.
 
-That creates the `bikes` table, the security rules, and the photo storage
-bucket.
+## The admin login
 
-## 3. Create the admin login
+Only people with a Supabase user account can sign in. To create one:
+Authentication → Users → **Add user**, set an email + password, tick
+**Auto-confirm**. There is no public sign-up.
 
-1. Left sidebar → **Authentication** → **Users** → **Add user** → **Create new user**.
-2. Enter the email + password your client will log in with. Tick
-   **Auto-confirm user** so no confirmation email is needed.
-3. That is the only account that can reach the admin panel.
+## For the client — using the admin
 
-## 4. Send me three values
+1. Go to **yoursite.com/admin** and sign in.
+2. **Listings** shows every bike. Each has **Edit** and **Delete** (delete asks
+   to confirm).
+3. **+ Add a bike** — fill in the details, tap **Add photos** to upload from the
+   phone, arrange them (the first is the cover shown on cards), then **Publish**.
+4. Changes are live immediately — the collection, the home page and the search
+   filter all update on their own.
 
-Left sidebar → **Settings** → **API**. Copy and send:
+Photos are automatically resized on upload, so a big phone photo won't slow the
+site down.
 
-- **Project URL** (e.g. `https://abcdefgh.supabase.co`)
-- **anon / public** key
-- **service_role** key — treat this one like a password; it's used once to load
-  your existing bikes, then not needed again.
+## Security
 
-That's your part done. From those I'll:
-
-- load the 12 current bikes (with all their photos) into your database,
-- build and test the login + add/edit/delete admin screen,
-- point the live site at the database.
-
----
-
-## How it stays secure
-
-- The admin lives at a private URL with **no link anywhere on the public site**,
-  and search engines are told to skip it.
-- It sits behind the login from step 3 — anyone else who finds the URL just hits
-  a password screen.
-- The database itself only lets the **public read**; adding, editing or deleting
-  requires being logged in. So even a direct hit on the database changes nothing.
-
-## Cost
-
-Supabase's free tier covers a site this size comfortably (500 MB database, 1 GB
-of photos, plenty of traffic). No card required to start.
+- The admin URL is linked nowhere public and is hidden from search engines.
+- Every admin page sits behind the login (checked twice — in the middleware and
+  again in the page).
+- The database only lets the public **read**; all writes require a logged-in
+  admin.
