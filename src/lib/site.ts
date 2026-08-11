@@ -9,9 +9,8 @@ export const site = {
   tagline: "Where passion meets the ground",
 
   /**
-   * WhatsApp is the ONLY way to reach the shop — the number does not take
-   * voice calls, so there is deliberately no tel: link anywhere on the site.
-   * Printing a callable number would send buyers to a line nobody answers.
+   * WhatsApp is the way to reach the shop — every contact point on the site is
+   * a wa.me link, and there is deliberately no tel: link anywhere.
    *
    * International format, digits only — this is what wa.me expects.
    * Set NEXT_PUBLIC_WHATSAPP to override without a rebuild.

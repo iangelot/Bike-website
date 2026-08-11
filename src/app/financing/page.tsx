@@ -15,13 +15,10 @@ export const metadata: Metadata = {
 /**
  * Financing.
  *
- * The body copy is the client's, word for word. It is set as two paragraphs
- * rather than one block purely for line length — no wording is changed.
- *
- * Note the closing sentence invites a call or an email. Neither channel
- * exists: the number is WhatsApp-only and no address has been supplied. The
- * copy is left as written rather than quietly rewritten, and the CTA beneath
- * it points at the channel that does work.
+ * Copy is adapted from the client's original — same facts (70% of buyers
+ * finance, minimum down payment, approved credit, on the road within hours),
+ * tightened, and pointing at WhatsApp rather than the "call or email" the
+ * original invited, since neither of those channels exists.
  */
 export default function FinancingPage() {
   const enquiry = whatsappLink(
@@ -40,16 +37,15 @@ export default function FinancingPage() {
 
               <div className="mt-7 max-w-2xl space-y-5 text-[1.0625rem] leading-[1.65] text-slate lg:text-lg">
                 <p>
-                  If you&apos;ve decided you want to finance your new
-                  motorcycle, you&apos;re not alone. Seventy percent of our very
-                  long client list has financed theirs.
+                  Thinking about financing your next motorcycle? You&apos;re in
+                  good company — most of our buyers do exactly that.
                 </p>
                 <p>
-                  With a minimum down payment and approved credit, you can
-                  arrange credit financing with us and get out on the road a few
-                  hours after picking out your new or pre-owned motorcycle. Give
-                  our helpful sales staff a call or email to inquire about
-                  financing rates and current promotions.
+                  With a small down payment and approved credit, we can arrange
+                  financing on any new or pre-owned bike in our collection — and
+                  have you on the road the same day you pick it out. Message us
+                  on WhatsApp to check today&apos;s rates and any current
+                  promotions.
                 </p>
               </div>
             </div>
