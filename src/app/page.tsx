@@ -7,6 +7,9 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { WhyChoose } from "@/components/WhyChoose";
 
+// The home page shows live "Featured Listings", so it renders per request.
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   return (
     <>

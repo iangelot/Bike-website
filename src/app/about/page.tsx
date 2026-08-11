@@ -4,8 +4,11 @@ import Link from "next/link";
 import { ArrowRight, WhatsAppIcon } from "@/components/icons";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getAllBikes } from "@/lib/bikes";
+import { getAllBikes } from "@/lib/bikes-data";
 import { site, whatsappLink } from "@/lib/site";
+
+// Reads the live "in stock" count.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "About",
@@ -26,8 +29,8 @@ export const metadata: Metadata = {
  * The three pillars reuse the "Why Choose" icons, tying this page to the home
  * page's section. The stock count is read live so it never goes stale.
  */
-export default function AboutPage() {
-  const inStock = getAllBikes().length;
+export default async function AboutPage() {
+  const inStock = (await getAllBikes()).length;
 
   const pillars = [
     {

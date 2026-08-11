@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BikeCard } from "./BikeCard";
 import { ArrowRight } from "./icons";
-import { getFeaturedBikes } from "@/lib/bikes";
+import { getFeaturedBikes } from "@/lib/bikes-data";
 
 /**
  * The mobile frame centres the eyebrow and title and hangs "View all bikes →"
@@ -9,8 +9,8 @@ import { getFeaturedBikes } from "@/lib/bikes";
  * masthead — the whole lower page is centre-aligned in the design — and turns
  * the column into a three-up grid, which is exactly the count the frame shows.
  */
-export function FeaturedListings() {
-  const featured = getFeaturedBikes();
+export async function FeaturedListings() {
+  const featured = await getFeaturedBikes();
 
   return (
     <section className="shell py-16 lg:py-24" aria-labelledby="featured-heading">

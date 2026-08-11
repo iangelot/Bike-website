@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getMakes } from "@/lib/bikes";
+import { getMakes } from "@/lib/bikes-data";
 
 /**
  * Full-bleed navy band with the night-rider photo behind it at 28% (both taken
@@ -11,8 +11,8 @@ import { getMakes } from "@/lib/bikes";
  * filters belong on the collection page where there is room to do them
  * justice.
  */
-export function FindYourBike() {
-  const makes = getMakes();
+export async function FindYourBike() {
+  const makes = await getMakes();
 
   return (
     <section className="relative overflow-hidden bg-navy py-14 lg:py-20">

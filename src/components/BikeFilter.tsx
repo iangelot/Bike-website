@@ -1,4 +1,4 @@
-import { getMakes } from "@/lib/bikes";
+import { getMakes } from "@/lib/bikes-data";
 
 /**
  * The collection page's filter row.
@@ -12,8 +12,15 @@ import { getMakes } from "@/lib/bikes";
  * and drop shadow of the home version are dropped; the control itself keeps
  * the frame's 17px radius and hairline navy border.
  */
-export function BikeFilter({ make }: { make?: string }) {
-  const makes = getMakes();
+export async function BikeFilter({
+  make,
+  makes: providedMakes,
+}: {
+  make?: string;
+  /** Passed by /bikes, which already fetched the makes — avoids a second query. */
+  makes?: string[];
+}) {
+  const makes = providedMakes ?? (await getMakes());
 
   return (
     <form

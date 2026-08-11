@@ -1,21 +1,23 @@
 /**
- * Inventory.
+ * Inventory types + the seed inventory.
  *
- * Everything the UI renders reads from this file, so moving to a CMS or
- * Supabase later is a change to the getters at the bottom and nothing else.
+ * This module is deliberately pure — types, the `formatDistance` helper, and
+ * the `seedBikes` array, and NOTHING that imports a framework. The reads that
+ * the pages actually call live in `bikes-data.ts`, which fetches from Supabase
+ * when it is configured and falls back to `seedBikes` when it is not. Keeping
+ * this file import-free is what lets the seed script (plain Node) load the
+ * data without dragging in `next/headers`.
+ *
+ * `seedBikes` is the 12 bikes the site launched with. Once Supabase is
+ * configured and seeded it becomes a fallback only — the live data comes from
+ * the database, and the admin panel edits that, not this file.
  *
  * Prices, years, models, mileages, colours, locations and warranty wording are
  * recorded exactly as supplied — no rounding, renaming or unit conversion.
- * Where a supplied figure disagreed with the bike's own dash photo it was
- * queried once and then entered as given.
  *
  * Photo order is the order the photos were sent, except that the lead photo of
- * each bike is the best full-bike shot rather than whatever happened to arrive
- * first — a card showing a close-up of an exhaust tells a buyer nothing. The
- * lead is `photos[0]`: it is the card image and the first frame of the gallery.
- *
- * To add a bike: drop its photos in design/source/bikes/<slug>/, run
- * `node scripts/optimise-listing-photos.mjs`, and add an entry here.
+ * each bike is the best full-bike shot. The lead is `photos[0]`: the card
+ * image and the first frame of the gallery.
  */
 
 export type Photo = {
@@ -69,7 +71,7 @@ const SOLD_AS_IS = "Sold as is";
 const GASOLINE = "Gasoline";
 const TENNESSEE = "Tennessee";
 
-export const bikes: Bike[] = [
+export const seedBikes: Bike[] = [
   {
     slug: "yamaha-mt09-2021",
     make: "Yamaha",
@@ -319,36 +321,6 @@ export const bikes: Bike[] = [
     ],
   },
 ];
-
-/** The four cards the home page shows under "Featured Listings". */
-export function getFeaturedBikes(): Bike[] {
-  return bikes.filter((bike) => bike.featured);
-}
-
-export function getAllBikes(): Bike[] {
-  return bikes;
-}
-
-export function getBikeBySlug(slug: string): Bike | undefined {
-  return bikes.find((bike) => bike.slug === slug);
-}
-
-/**
- * Bikes to show under a listing. Same make first, because someone looking at a
- * Honda is more likely to want another Honda than whatever happens to be next
- * in the array; anything else fills the remaining slots.
- */
-export function getRelatedBikes(bike: Bike, limit = 4): Bike[] {
-  const others = bikes.filter((candidate) => candidate.slug !== bike.slug);
-  const sameMake = others.filter((candidate) => candidate.make === bike.make);
-  const rest = others.filter((candidate) => candidate.make !== bike.make);
-  return [...sameMake, ...rest].slice(0, limit);
-}
-
-/** Populates the "All Makes" filter, so it can never drift from the stock. */
-export function getMakes(): string[] {
-  return [...new Set(bikes.map((bike) => bike.make))].sort();
-}
 
 /** "36,000 MI" — grouped, because five-figure readings are the norm here. */
 export function formatDistance(bike: Bike): string {

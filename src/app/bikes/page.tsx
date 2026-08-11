@@ -4,13 +4,17 @@ import { BikeCard } from "@/components/BikeCard";
 import { BikeFilter } from "@/components/BikeFilter";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getAllBikes, getMakes } from "@/lib/bikes";
+import { getAllBikes, getMakes } from "@/lib/bikes-data";
 
 export const metadata: Metadata = {
   title: "Collection",
   description:
     "Every motorcycle currently on the floor at RAGERIDE — track and road bikes, inspected and vetted, with financing available.",
 };
+
+// Always reflect the live database — a bike the admin just added or removed
+// must show up immediately, not on the next rebuild.
+export const dynamic = "force-dynamic";
 
 /**
  * The collection page the home page's search and every "View all bikes" link
@@ -24,13 +28,15 @@ export default async function BikesPage({
 }) {
   const { make } = await searchParams;
 
+  const [allBikes, makes] = await Promise.all([getAllBikes(), getMakes()]);
+
   // Validated against the real makes rather than trusted, so a hand-typed or
   // stale query string falls back to the full list instead of an empty page.
-  const activeMake = make && getMakes().includes(make) ? make : undefined;
+  const activeMake = make && makes.includes(make) ? make : undefined;
 
   const bikes = activeMake
-    ? getAllBikes().filter((bike) => bike.make === activeMake)
-    : getAllBikes();
+    ? allBikes.filter((bike) => bike.make === activeMake)
+    : allBikes;
 
   return (
     <>
@@ -47,7 +53,7 @@ export default async function BikesPage({
           </p>
 
           <div className="mt-9">
-            <BikeFilter make={activeMake} />
+            <BikeFilter make={activeMake} makes={makes} />
           </div>
 
           <p aria-live="polite" className="mt-8 text-[0.9375rem] text-slate">

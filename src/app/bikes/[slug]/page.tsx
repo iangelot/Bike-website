@@ -6,24 +6,19 @@ import { BikeGallery } from "@/components/BikeGallery";
 import { ArrowRight, WhatsAppIcon } from "@/components/icons";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import {
-  formatDistance,
-  getAllBikes,
-  getBikeBySlug,
-  getRelatedBikes,
-} from "@/lib/bikes";
+import { formatDistance } from "@/lib/bikes";
+import { getBikeBySlug, getRelatedBikes } from "@/lib/bikes-data";
 import { formatPrice, site, whatsappLink } from "@/lib/site";
 
 type Params = { params: Promise<{ slug: string }> };
 
-/** Every listing is known at build time, so all of them prerender. */
-export function generateStaticParams() {
-  return getAllBikes().map((bike) => ({ slug: bike.slug }));
-}
+// Listings live in the database now, so a bike is rendered on demand rather
+// than baked at build time — an edit in the admin is visible on next request.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const bike = getBikeBySlug(slug);
+  const bike = await getBikeBySlug(slug);
   if (!bike) return { title: "Listing not found" };
 
   return {
@@ -48,7 +43,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
  */
 export default async function BikePage({ params }: Params) {
   const { slug } = await params;
-  const bike = getBikeBySlug(slug);
+  const bike = await getBikeBySlug(slug);
   if (!bike) notFound();
 
   const specs = [
@@ -62,7 +57,7 @@ export default async function BikePage({ params }: Params) {
     { label: "Warranty", value: bike.warranty },
   ].filter((spec): spec is { label: string; value: string } => Boolean(spec.value));
 
-  const related = getRelatedBikes(bike, 4);
+  const related = await getRelatedBikes(bike, 4);
 
   const enquiry = whatsappLink(
     `Hello ${site.name}, I'm interested in the ${bike.year} ${bike.make} ${bike.model} listed at ${formatPrice(bike.price)}.`,
