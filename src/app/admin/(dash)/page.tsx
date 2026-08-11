@@ -26,7 +26,7 @@ export default async function AdminDashboard() {
         {bikes.map((bike) => (
           <li
             key={bike.slug}
-            className="flex items-center gap-4 rounded-[13px] border border-line bg-white p-3"
+            className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-[13px] border border-line bg-white p-3"
           >
             <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-plate">
               {bike.photos[0] ? (
@@ -40,11 +40,13 @@ export default async function AdminDashboard() {
               ) : null}
             </div>
 
+            {/* min-w-0 + no truncate: the name wraps to a second line on a phone
+                rather than being cut to "2021 Y…". */}
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium text-navy">
+              <p className="font-medium text-navy">
                 {bike.year} {bike.make} {bike.model}
                 {bike.featured ? (
-                  <span className="ml-2 rounded-full bg-gold/20 px-2 py-0.5 text-[0.6875rem] font-medium uppercase tracking-wide text-navy">
+                  <span className="ml-2 whitespace-nowrap rounded-full bg-gold/20 px-2 py-0.5 text-[0.6875rem] font-medium uppercase tracking-wide text-navy">
                     Featured
                   </span>
                 ) : null}
@@ -56,10 +58,12 @@ export default async function AdminDashboard() {
               </p>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+            {/* Full width on its own line on a phone; inline on the right on
+                wider screens. */}
+            <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
               <Link
                 href={`/admin/bikes/${bike.slug}/edit`}
-                className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-navy hover:border-navy"
+                className="rounded-lg border border-line px-4 py-2 text-sm font-medium text-navy hover:border-navy"
               >
                 Edit
               </Link>

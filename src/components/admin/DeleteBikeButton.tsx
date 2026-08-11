@@ -28,7 +28,7 @@ export function DeleteBikeButton({ slug, label }: { slug: string; label: string 
           type="button"
           onClick={onDelete}
           disabled={pending}
-          className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
+          className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
         >
           {pending ? "Deleting…" : "Delete"}
         </button>
@@ -36,7 +36,7 @@ export function DeleteBikeButton({ slug, label }: { slug: string; label: string 
           type="button"
           onClick={() => setConfirming(false)}
           disabled={pending}
-          className="rounded-lg border border-line px-3 py-1.5 text-sm text-slate hover:border-navy"
+          className="rounded-lg border border-line px-4 py-2 text-sm text-slate hover:border-navy"
         >
           Cancel
         </button>
@@ -49,7 +49,7 @@ export function DeleteBikeButton({ slug, label }: { slug: string; label: string 
       type="button"
       onClick={() => setConfirming(true)}
       aria-label={`Delete ${label}`}
-      className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-red-600 hover:border-red-600"
+      className="rounded-lg border border-line px-4 py-2 text-sm font-medium text-red-600 hover:border-red-600"
     >
       Delete
     </button>
