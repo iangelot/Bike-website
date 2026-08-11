@@ -1,12 +1,14 @@
 -- RAGERIDE — database schema.
 --
 -- Run this ONCE in your Supabase project: open the project, go to the SQL
--- Editor, paste this whole file, and press Run. It is safe to run again — every
--- statement checks for what already exists.
+-- Editor, paste this whole file, and press Run. Safe to run again.
 --
--- It creates one table (bikes), locks it down so the public can read but only a
--- logged-in admin can change anything, and makes a public storage bucket for
--- the photos with the same rule.
+-- Note: this intentionally does NOT create the storage bucket or its policies.
+-- Those "create policy ... on storage.objects" statements require table-owner
+-- rights the SQL editor doesn't have, and because the editor runs the script in
+-- one transaction, that error rolls the whole thing back. The photo bucket is
+-- created through the API instead (see scripts/create-bucket + the seed), and
+-- photo writes go through server actions, so no storage policies are needed.
 
 create extension if not exists pgcrypto;
 
@@ -47,13 +49,15 @@ create trigger bikes_touch_updated_at
   for each row execute function public.touch_updated_at();
 
 -- ----------------------------------------------------- row level security
--- Anyone may READ the listings; only a signed-in user may write.
+-- Anyone may READ the listings; only a signed-in user may write. (Admin writes
+-- go through the service role server-side, which bypasses this, but the public
+-- read policy is what lets the site load listings with the publishable key.)
 alter table public.bikes enable row level security;
 
-drop policy if exists "bikes public read"  on public.bikes;
-drop policy if exists "bikes auth insert"  on public.bikes;
-drop policy if exists "bikes auth update"  on public.bikes;
-drop policy if exists "bikes auth delete"  on public.bikes;
+drop policy if exists "bikes public read" on public.bikes;
+drop policy if exists "bikes auth insert" on public.bikes;
+drop policy if exists "bikes auth update" on public.bikes;
+drop policy if exists "bikes auth delete" on public.bikes;
 
 create policy "bikes public read" on public.bikes
   for select using (true);
@@ -66,26 +70,3 @@ create policy "bikes auth update" on public.bikes
 
 create policy "bikes auth delete" on public.bikes
   for delete to authenticated using (true);
-
--- ------------------------------------------------------- photo storage bucket
--- Public bucket so the photos load on the site; writes are admin-only.
-insert into storage.buckets (id, name, public)
-values ('bike-photos', 'bike-photos', true)
-on conflict (id) do nothing;
-
-drop policy if exists "bike photos public read" on storage.objects;
-drop policy if exists "bike photos auth insert" on storage.objects;
-drop policy if exists "bike photos auth update" on storage.objects;
-drop policy if exists "bike photos auth delete" on storage.objects;
-
-create policy "bike photos public read" on storage.objects
-  for select using (bucket_id = 'bike-photos');
-
-create policy "bike photos auth insert" on storage.objects
-  for insert to authenticated with check (bucket_id = 'bike-photos');
-
-create policy "bike photos auth update" on storage.objects
-  for update to authenticated using (bucket_id = 'bike-photos');
-
-create policy "bike photos auth delete" on storage.objects
-  for delete to authenticated using (bucket_id = 'bike-photos');
