@@ -28,10 +28,6 @@ export default function ContactPage() {
       message: `Hello ${site.name}, I'd like to ask about one of your motorcycles.`,
     },
     {
-      label: "Book a viewing",
-      message: `Hello ${site.name}, I'd like to book a viewing.`,
-    },
-    {
       label: "Ask about financing",
       message: `Hello ${site.name}, I'd like to ask about financing rates and current promotions.`,
     },
