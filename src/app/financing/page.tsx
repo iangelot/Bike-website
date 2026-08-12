@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "Financing",
   description:
     "Arrange credit financing with RAGERIDE. With a minimum down payment and approved credit you can be on the road a few hours after picking out your motorcycle.",
+  alternates: { canonical: "/financing" },
 };
 
 /**

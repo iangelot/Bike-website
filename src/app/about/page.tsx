@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: "About",
   description:
     "RAGERIDE Motorcycles — quality used and new bikes, inspected, ridden, and sold straight. No surprises, no hidden fees. Financing available.",
+  alternates: { canonical: "/about" },
 };
 
 /**

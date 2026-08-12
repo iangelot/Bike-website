@@ -30,8 +30,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: bike.year ? `${bikeName(bike)} (${bike.year})` : bikeName(bike),
     description: `${[bikeTitle(bike), ...facts].join(", ")}. Inspected and vetted by ${site.name}.`,
+    alternates: { canonical: `/bikes/${bike.slug}` },
     openGraph: {
       title: bikeTitle(bike),
+      type: "website",
+      url: `${site.url}/bikes/${bike.slug}`,
+      // Photo URLs are absolute (Supabase Storage) or root-relative (the seed
+      // photos); metadataBase in the root layout resolves the latter.
       ...(lead ? { images: [{ url: lead.src }] } : {}),
     },
   };
