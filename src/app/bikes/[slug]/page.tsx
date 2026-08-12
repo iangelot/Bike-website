@@ -6,9 +6,9 @@ import { BikeGallery } from "@/components/BikeGallery";
 import { ArrowRight, WhatsAppIcon } from "@/components/icons";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { formatDistance } from "@/lib/bikes";
+import { bikeName, bikeTitle, formatDistance } from "@/lib/bikes";
 import { getBikeBySlug, getRelatedBikes } from "@/lib/bikes-data";
-import { formatPrice, site, whatsappLink } from "@/lib/site";
+import { emailLink, formatPrice, site, whatsappLink } from "@/lib/site";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -21,14 +21,18 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const bike = await getBikeBySlug(slug);
   if (!bike) return { title: "Listing not found" };
 
+  // Every part of this is optional on a listing, so the description is
+  // assembled from what is actually recorded rather than a fixed sentence with
+  // holes in it.
+  const facts = [formatDistance(bike), formatPrice(bike.price)].filter(Boolean);
+  const lead = bike.photos[0];
+
   return {
-    title: `${bike.make} ${bike.model} (${bike.year})`,
-    description: `${bike.year} ${bike.make} ${bike.model}, ${formatDistance(
-      bike,
-    )}, ${formatPrice(bike.price)}. Inspected and vetted by ${site.name}.`,
+    title: bike.year ? `${bikeName(bike)} (${bike.year})` : bikeName(bike),
+    description: `${[bikeTitle(bike), ...facts].join(", ")}. Inspected and vetted by ${site.name}.`,
     openGraph: {
-      title: `${bike.year} ${bike.make} ${bike.model}`,
-      images: [{ url: bike.photos[0].src }],
+      title: bikeTitle(bike),
+      ...(lead ? { images: [{ url: lead.src }] } : {}),
     },
   };
 }
@@ -49,19 +53,26 @@ export default async function BikePage({ params }: Params) {
   const specs = [
     { label: "Make", value: bike.make },
     { label: "Model", value: bike.model },
-    { label: "Year", value: String(bike.year) },
+    { label: "Year", value: bike.year ? String(bike.year) : undefined },
     { label: "Mileage", value: formatDistance(bike) },
     { label: "Colour", value: bike.colour },
     { label: "Fuel type", value: bike.fuelType },
     { label: "Location", value: bike.location },
     { label: "Warranty", value: bike.warranty },
-  ].filter((spec): spec is { label: string; value: string } => Boolean(spec.value));
+  ].filter(
+    (spec): spec is { label: string; value: string } =>
+      typeof spec.value === "string" && spec.value.length > 0,
+  );
 
   const related = await getRelatedBikes(bike, 4);
 
-  const enquiry = whatsappLink(
-    `Hello ${site.name}, I'm interested in the ${bike.year} ${bike.make} ${bike.model} listed at ${formatPrice(bike.price)}.`,
-  );
+  // "listed at $4,500" only if there is a price; otherwise the buyer is asking
+  // what it costs, which is exactly what "price on request" means.
+  const enquiryText =
+    typeof bike.price === "number"
+      ? `Hello ${site.name}, I'm interested in the ${bikeTitle(bike)} listed at ${formatPrice(bike.price)}.`
+      : `Hello ${site.name}, I'm interested in the ${bikeTitle(bike)}. Could you tell me the price?`;
+  const enquiry = whatsappLink(enquiryText);
 
   return (
     <>
@@ -80,12 +91,18 @@ export default async function BikePage({ params }: Params) {
             <BikeGallery photos={bike.photos} />
 
             <div className="mt-10 lg:mt-0">
-              <p className="eyebrow">{bike.year}</p>
-              <h1 className="section-title mt-2">
-                {bike.make} {bike.model}
+              {bike.year ? <p className="eyebrow">{bike.year}</p> : null}
+              <h1 className={`section-title ${bike.year ? "mt-2" : ""}`}>
+                {bikeName(bike)}
               </h1>
 
-              <p className="mt-5 font-display text-4xl font-medium lg:text-5xl">
+              <p
+                className={`mt-5 font-display font-medium ${
+                  typeof bike.price === "number"
+                    ? "text-4xl lg:text-5xl"
+                    : "text-2xl lg:text-3xl"
+                }`}
+              >
                 {formatPrice(bike.price)}
               </p>
 
@@ -115,6 +132,18 @@ export default async function BikePage({ params }: Params) {
                   Contact Us!
                 </Link>
               </div>
+
+              {/* WhatsApp stays the main channel; email is the fallback for
+                  buyers who would rather write. */}
+              <p className="mt-4 text-[0.9375rem] text-slate">
+                Prefer email?{" "}
+                <a
+                  href={emailLink(`Enquiry — ${bikeTitle(bike)}`)}
+                  className="font-medium text-navy underline underline-offset-4 hover:text-gold"
+                >
+                  {site.email}
+                </a>
+              </p>
 
               <p className="mt-5 text-[0.9375rem] leading-[1.6] text-slate">
                 Inspected and vetted for safe track and road use. Finance

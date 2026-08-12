@@ -21,12 +21,18 @@ export const site = {
   whatsappDisplay: "+1 (608) 209-9441",
 
   /**
-   * NOT SUPPLIED YET. Every one of these is optional and the footer simply
-   * omits the row when it is undefined — a made-up shop address or an email
-   * nobody reads is worse than a shorter footer, because a visitor will
-   * actually try to use it. Fill them in and the rows come back.
+   * Secondary contact. WhatsApp stays the primary channel everywhere — this is
+   * the fallback for buyers who would rather write, and for anything that
+   * needs an attachment. Set NEXT_PUBLIC_CONTACT_EMAIL to override.
    */
-  email: undefined as string | undefined,
+  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "bl9713637@gmail.com",
+
+  /**
+   * NOT SUPPLIED YET. Both are optional and the footer simply omits the row
+   * when it is undefined — a made-up shop address is worse than a shorter
+   * footer, because a visitor will actually try to use it. Fill them in and
+   * the rows come back.
+   */
   address: undefined as string | undefined,
   hours: undefined as string | undefined,
 
@@ -56,13 +62,28 @@ export const nav = [
   { label: "Contact", href: "/contact" },
 ] as const;
 
-/** Formats a price the same way everywhere — cards, detail pages, admin. */
-export function formatPrice(amount: number): string {
+/** Shown in place of a figure when a listing has no price set. */
+export const PRICE_ON_REQUEST = "Price on request";
+
+/**
+ * Formats a price the same way everywhere — cards, detail pages, admin.
+ *
+ * A listing may have no price (the field is optional in the admin), and every
+ * place that shows one still needs to show something, so an absent price
+ * becomes "Price on request" rather than "$0" or a blank line.
+ */
+export function formatPrice(amount?: number): string {
+  if (typeof amount !== "number") return PRICE_ON_REQUEST;
   return new Intl.NumberFormat(site.locale, {
     style: "currency",
     currency: site.currency,
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+/** `mailto:` with the subject pre-filled, mirroring `whatsappLink`. */
+export function emailLink(subject: string): string {
+  return `mailto:${site.email}?subject=${encodeURIComponent(subject)}`;
 }
 
 /**

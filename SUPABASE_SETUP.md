@@ -25,6 +25,18 @@ on the host (e.g. Vercel) they're set as project env vars. See `.env.example`.
 With none set, the site falls back to the built-in seed inventory and the admin
 is disabled — so it never breaks.
 
+## One-off: make the listing details optional
+
+The `bikes` table was first created with `make`, `model`, `year`, `distance`
+and `price` marked **NOT NULL**. The admin form no longer requires them, so an
+existing database has to have those constraints dropped or saving a listing
+with a blank year will fail with a database error.
+
+Open Supabase → **SQL Editor**, paste `supabase/schema.sql` again and press
+**Run**. It is safe to re-run: the table is left alone and only the six
+`alter table … drop not null` lines take effect. New projects get the right
+shape from the start.
+
 ## The admin login
 
 Only people with a Supabase user account can sign in. To create one:
@@ -38,6 +50,10 @@ Authentication → Users → **Add user**, set an email + password, tick
    to confirm).
 3. **+ Add a bike** — fill in the details, tap **Add photos** to upload from the
    phone, arrange them (the first is the cover shown on cards), then **Publish**.
+   Nothing on that form is required: leave out the year, the mileage, the price
+   or even the photos and the listing simply doesn't show those lines (a bike
+   with no price reads **"Price on request"**). Come back and **Edit** it once
+   you know the rest.
 4. Changes are live immediately — the collection, the home page and the search
    filter all update on their own.
 

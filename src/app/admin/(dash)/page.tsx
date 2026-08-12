@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatDistance } from "@/lib/bikes";
+import { bikeTitle, formatDistance } from "@/lib/bikes";
 import { getAllBikes } from "@/lib/bikes-data";
 import { formatPrice } from "@/lib/site";
 import { DeleteBikeButton } from "@/components/admin/DeleteBikeButton";
@@ -44,17 +44,23 @@ export default async function AdminDashboard() {
                 rather than being cut to "2021 Y…". */}
             <div className="min-w-0 flex-1">
               <p className="font-medium text-navy">
-                {bike.year} {bike.make} {bike.model}
+                {bikeTitle(bike)}
                 {bike.featured ? (
                   <span className="ml-2 whitespace-nowrap rounded-full bg-gold/20 px-2 py-0.5 text-[0.6875rem] font-medium uppercase tracking-wide text-navy">
                     Featured
                   </span>
                 ) : null}
               </p>
+              {/* Only the parts that were filled in — a listing may have no
+                  price or no mileage, and empty separators read as an error. */}
               <p className="mt-0.5 text-sm text-slate">
-                {formatPrice(bike.price)} · {formatDistance(bike)} ·{" "}
-                {bike.photos.length}{" "}
-                {bike.photos.length === 1 ? "photo" : "photos"}
+                {[
+                  formatPrice(bike.price),
+                  formatDistance(bike),
+                  `${bike.photos.length} ${bike.photos.length === 1 ? "photo" : "photos"}`,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </p>
             </div>
 
@@ -67,10 +73,7 @@ export default async function AdminDashboard() {
               >
                 Edit
               </Link>
-              <DeleteBikeButton
-                slug={bike.slug}
-                label={`${bike.year} ${bike.make} ${bike.model}`}
-              />
+              <DeleteBikeButton slug={bike.slug} label={bikeTitle(bike)} />
             </div>
           </li>
         ))}

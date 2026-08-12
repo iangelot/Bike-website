@@ -14,8 +14,10 @@ import { nav, site, socials, whatsappLink } from "@/lib/site";
  * the mark and a line of positioning, then a column of page links and a column
  * of contact details, closing on a thin rule and a copyright bar.
  *
- * Everything under "Contact" is a placeholder from site.ts — see the note
- * there. The layout does not change when the real details land.
+ * Everything under "Contact" comes from site.ts — WhatsApp first, then the
+ * email as the secondary channel, then the address. Each row is dropped when
+ * its value is unset, so the layout does not change when the remaining details
+ * land.
  */
 export function SiteFooter() {
   const year = new Date().getFullYear();

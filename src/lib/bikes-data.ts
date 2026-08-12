@@ -16,12 +16,12 @@ import { seedBikes, type Bike, type Photo } from "@/lib/bikes";
 /** A row of the `bikes` table — snake_case, as Postgres returns it. */
 type BikeRow = {
   slug: string;
-  make: string;
-  model: string;
-  year: number;
-  distance: number;
-  distance_unit: "mi" | "km";
-  price: number;
+  make: string | null;
+  model: string | null;
+  year: number | null;
+  distance: number | null;
+  distance_unit: "mi" | "km" | null;
+  price: number | null;
   colour: string | null;
   fuel_type: string | null;
   location: string | null;
@@ -30,15 +30,16 @@ type BikeRow = {
   photos: Photo[] | null;
 };
 
+/** NULL is how the database records "not supplied"; the app uses undefined. */
 function rowToBike(row: BikeRow): Bike {
   return {
     slug: row.slug,
-    make: row.make,
-    model: row.model,
-    year: row.year,
-    distance: row.distance,
-    distanceUnit: row.distance_unit,
-    price: row.price,
+    make: row.make ?? undefined,
+    model: row.model ?? undefined,
+    year: row.year ?? undefined,
+    distance: row.distance ?? undefined,
+    distanceUnit: row.distance_unit ?? undefined,
+    price: row.price ?? undefined,
     colour: row.colour ?? undefined,
     fuelType: row.fuel_type ?? undefined,
     location: row.location ?? undefined,
@@ -99,13 +100,24 @@ export async function getBikeBySlug(slug: string): Promise<Bike | undefined> {
 export async function getRelatedBikes(bike: Bike, limit = 4): Promise<Bike[]> {
   const all = await getAllBikes();
   const others = all.filter((candidate) => candidate.slug !== bike.slug);
-  const sameMake = others.filter((candidate) => candidate.make === bike.make);
-  const rest = others.filter((candidate) => candidate.make !== bike.make);
+  // With no make recorded there is nothing to match on, so the order is simply
+  // the list order rather than "every other bike that also has no make".
+  const sameMake = bike.make
+    ? others.filter((candidate) => candidate.make === bike.make)
+    : [];
+  const rest = others.filter((candidate) => !sameMake.includes(candidate));
   return [...sameMake, ...rest].slice(0, limit);
 }
 
-/** Populates the "All Makes" filter, derived so it can never drift from stock. */
+/**
+ * Populates the "All Makes" filter, derived so it can never drift from stock.
+ * Listings with no make recorded contribute no option — they are still in the
+ * collection, just not reachable by a make filter.
+ */
 export async function getMakes(): Promise<string[]> {
   const all = await getAllBikes();
-  return [...new Set(all.map((bike) => bike.make))].sort();
+  const makes = all
+    .map((bike) => bike.make)
+    .filter((make): make is string => Boolean(make));
+  return [...new Set(makes)].sort();
 }

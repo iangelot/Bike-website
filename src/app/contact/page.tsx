@@ -1,23 +1,25 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, PinIcon, WhatsAppIcon } from "@/components/icons";
+import { ArrowRight, MailIcon, PinIcon, WhatsAppIcon } from "@/components/icons";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { site, whatsappLink } from "@/lib/site";
+import { emailLink, site, whatsappLink } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: `Message RAGERIDE on WhatsApp to ask about a motorcycle, book a viewing, or inquire about financing.`,
+  description: `Message RAGERIDE on WhatsApp — or email us — to ask about a motorcycle, book a viewing, or inquire about financing.`,
 };
 
 /**
  * Contact.
  *
- * WhatsApp is the shop's channel, so this page does one thing well rather than
- * offering a form and an email that go nowhere. The primary action is a
- * pre-filled WhatsApp message; a couple of alternate openers (a specific bike,
- * financing) are offered so the buyer does not have to compose from scratch.
+ * WhatsApp is the shop's channel, so this page leads with it rather than
+ * offering a form that goes nowhere. The primary action is a pre-filled
+ * WhatsApp message; a couple of alternate openers (a specific bike, financing)
+ * are offered so the buyer does not have to compose from scratch. Email is
+ * offered underneath as the secondary channel, for buyers who would rather
+ * write or need to attach something.
  *
  * Location is shown only if set in site.ts. Nothing here is invented.
  */
@@ -43,10 +45,10 @@ export default function ContactPage() {
               <p className="eyebrow">Get in touch</p>
               <h1 className="section-title mt-2">Contact Us</h1>
               <p className="mt-6 max-w-xl text-[1.0625rem] leading-[1.65] text-slate lg:text-lg">
-                We do everything over WhatsApp — it is the quickest way to reach
-                us. Message us to ask about a motorcycle, arrange a viewing, or
-                inquire about financing, and our sales staff will get straight
-                back to you.
+                WhatsApp is the quickest way to reach us — message us to ask
+                about a motorcycle, arrange a viewing, or inquire about
+                financing, and our sales staff will get straight back to you.
+                If you would rather write, email works just as well.
               </p>
 
               <div className="mt-9">
@@ -64,6 +66,17 @@ export default function ContactPage() {
                 <p className="mt-4 font-display text-2xl font-medium">
                   {site.whatsappDisplay}
                 </p>
+
+                <p className="mt-6 text-[0.9375rem] text-slate">
+                  Or email us — we reply to both.
+                </p>
+                <a
+                  href={emailLink(`Enquiry — ${site.name}`)}
+                  className="mt-2 inline-flex items-center gap-3 text-[1.0625rem] font-medium text-navy underline underline-offset-4 hover:text-gold"
+                >
+                  <MailIcon className="h-5 w-5 shrink-0 text-gold" />
+                  {site.email}
+                </a>
               </div>
 
               {site.address ? (

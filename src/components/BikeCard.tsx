@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "./icons";
-import { CARD_FOCUS, formatDistance, type Bike } from "@/lib/bikes";
+import { bikeTitle, CARD_FOCUS, formatDistance, type Bike } from "@/lib/bikes";
 import { formatPrice } from "@/lib/site";
 
 const SIZES = "(width >= 64rem) 22vw, (width >= 40rem) 40vw, 92vw";
@@ -24,6 +24,13 @@ const SIZES = "(width >= 64rem) 22vw, (width >= 40rem) 40vw, 92vw";
  */
 export function BikeCard({ bike, priority = false }: { bike: Bike; priority?: boolean }) {
   const [lead] = bike.photos;
+  const distance = formatDistance(bike);
+
+  // Make is the headline and model the line under it, but either can be
+  // missing: with no make the model becomes the headline, and with neither the
+  // card still needs a name to sit above the price.
+  const heading = bike.make ?? bike.model ?? bikeTitle(bike);
+  const subheading = bike.make ? bike.model : undefined;
 
   return (
     <article className="group">
@@ -34,29 +41,47 @@ export function BikeCard({ bike, priority = false }: { bike: Bike; priority?: bo
         {/* Photo half. Fixed 3:2 stacked; on a row it stretches to the panel's
             height so the two halves always meet flush. */}
         <div className="relative aspect-[3/2] w-full shrink-0 overflow-hidden bg-plate sm:aspect-auto sm:min-h-[11.5rem] sm:w-[44%]">
-          <Image
-            src={lead.src}
-            alt={lead.alt}
-            fill
-            priority={priority}
-            sizes={SIZES}
-            style={{ objectPosition: lead.focus ?? CARD_FOCUS }}
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-          />
+          {lead ? (
+            <Image
+              src={lead.src}
+              alt={lead.alt}
+              fill
+              priority={priority}
+              sizes={SIZES}
+              style={{ objectPosition: lead.focus ?? CARD_FOCUS }}
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            />
+          ) : (
+            // Photos are optional too, so the card keeps its shape instead of
+            // collapsing when a listing is published before the photos land.
+            <span className="absolute inset-0 grid place-items-center text-center text-[0.6875rem] font-medium uppercase tracking-wide text-navy/45">
+              Photos coming soon
+            </span>
+          )}
         </div>
 
         {/* Details half. */}
         <div className="flex flex-1 items-center justify-between gap-4 px-6 py-6 text-white">
           <div className="min-w-0">
             <h3 className="truncate font-sans text-sm font-medium uppercase tracking-wide">
-              {bike.make}
+              {heading}
             </h3>
-            <p className="truncate text-[0.9375rem] text-white/85">{bike.model}</p>
-            <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[0.6875rem] font-medium text-white/70">
-              <span>{bike.year}</span>
-              <span>{formatDistance(bike)}</span>
-            </p>
-            <p className="mt-2 font-display text-2xl font-medium">
+            {subheading ? (
+              <p className="truncate text-[0.9375rem] text-white/85">{subheading}</p>
+            ) : null}
+            {bike.year || distance ? (
+              <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[0.6875rem] font-medium text-white/70">
+                {bike.year ? <span>{bike.year}</span> : null}
+                {distance ? <span>{distance}</span> : null}
+              </p>
+            ) : null}
+            {/* "Price on request" is three words where a figure is a few
+                characters, so it drops a size rather than wrapping. */}
+            <p
+              className={`mt-2 font-display font-medium ${
+                typeof bike.price === "number" ? "text-2xl" : "text-lg"
+              }`}
+            >
               {formatPrice(bike.price)}
             </p>
           </div>

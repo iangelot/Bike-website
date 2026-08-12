@@ -13,15 +13,20 @@
 create extension if not exists pgcrypto;
 
 -- ---------------------------------------------------------------- bikes table
+-- Only the slug is required. Every detail is optional: the admin form lets a
+-- listing be saved with whatever is actually known (no year, no price, no
+-- photos yet), and the site omits what is missing rather than showing a blank
+-- or a zero. A guessed year on a listing is a false claim to a buyer, so the
+-- database is the wrong place to force one.
 create table if not exists public.bikes (
   id            uuid primary key default gen_random_uuid(),
   slug          text unique not null,
-  make          text not null,
-  model         text not null,
-  year          integer not null,
-  distance      integer not null,
-  distance_unit text not null default 'mi' check (distance_unit in ('mi', 'km')),
-  price         integer not null,
+  make          text,
+  model         text,
+  year          integer,
+  distance      integer,
+  distance_unit text default 'mi' check (distance_unit in ('mi', 'km')),
+  price         integer,
   colour        text,
   fuel_type     text,
   location      text,
@@ -33,6 +38,17 @@ create table if not exists public.bikes (
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );
+
+-- Tables created before the details became optional still carry NOT NULL on
+-- these columns, and `create table if not exists` above leaves an existing
+-- table alone — so drop them explicitly. Both new and existing databases end
+-- up in the same shape, and re-running this is a no-op.
+alter table public.bikes alter column make          drop not null;
+alter table public.bikes alter column model         drop not null;
+alter table public.bikes alter column year          drop not null;
+alter table public.bikes alter column distance      drop not null;
+alter table public.bikes alter column distance_unit drop not null;
+alter table public.bikes alter column price         drop not null;
 
 -- Keep updated_at honest.
 create or replace function public.touch_updated_at()
