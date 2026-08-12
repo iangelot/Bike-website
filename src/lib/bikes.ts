@@ -41,21 +41,32 @@ export type Photo = {
  */
 export const CARD_FOCUS = "50% 65%";
 
+/**
+ * A listing.
+ *
+ * Everything except the slug is optional. The seller does not always know a
+ * bike's year, or want to publish a price before someone asks, and a form that
+ * refuses to save until every box is filled gets fed guesses — which is worse
+ * than a blank, because a wrong year on a listing is a wrong claim to a buyer.
+ * So each field is either shown as recorded or left out entirely; nothing is
+ * invented to fill a gap. See `formatDistance`, `bikeTitle` and `formatPrice`
+ * for how the gaps are rendered.
+ */
 export type Bike = {
   /** URL segment for the detail page. */
   slug: string;
-  make: string;
-  model: string;
-  year: number;
+  make?: string;
+  model?: string;
+  year?: number;
   /** Odometer reading, in `distanceUnit`. */
-  distance: number;
+  distance?: number;
   /**
    * Miles or kilometres. Stored per bike rather than assumed globally: this
-   * stock is mixed, and several of the dashes read in km.
+   * stock is mixed, and several of the dashes read in km. Defaults to miles.
    */
-  distanceUnit: "mi" | "km";
-  /** Asking price in `site.currency`. */
-  price: number;
+  distanceUnit?: "mi" | "km";
+  /** Asking price in `site.currency`. Absent means "price on request". */
+  price?: number;
   /** Display order. The first is the card image and the listing hero. */
   photos: Photo[];
   colour?: string;
@@ -322,7 +333,28 @@ export const seedBikes: Bike[] = [
   },
 ];
 
-/** "36,000 MI" — grouped, because five-figure readings are the norm here. */
-export function formatDistance(bike: Bike): string {
-  return `${bike.distance.toLocaleString("en-US")} ${bike.distanceUnit.toUpperCase()}`;
+/**
+ * "36,000 MI" — grouped, because five-figure readings are the norm here.
+ * `null` when no reading was recorded, so callers drop the line rather than
+ * printing "0 MI", which would read as a brand-new bike.
+ */
+export function formatDistance(bike: Bike): string | null {
+  if (typeof bike.distance !== "number") return null;
+  return `${bike.distance.toLocaleString("en-US")} ${(bike.distanceUnit ?? "mi").toUpperCase()}`;
+}
+
+/**
+ * "2021 Yamaha MT09" — built from whichever of year, make and model are set.
+ * Used for page titles, alt text and the WhatsApp enquiry, so it always
+ * returns something sayable.
+ */
+export function bikeTitle(bike: Bike): string {
+  const parts = [bike.year, bike.make, bike.model].filter(Boolean);
+  return parts.length > 0 ? parts.join(" ") : "Motorcycle";
+}
+
+/** The name without the year — "Yamaha MT09" — for headings. */
+export function bikeName(bike: Bike): string {
+  const parts = [bike.make, bike.model].filter(Boolean);
+  return parts.length > 0 ? parts.join(" ") : "Motorcycle";
 }

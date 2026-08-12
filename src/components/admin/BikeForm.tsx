@@ -84,6 +84,8 @@ export function BikeForm({ bike }: { bike?: Bike }) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
+  /** See the empty-listing check in onSubmit. */
+  const [confirmEmpty, setConfirmEmpty] = useState(false);
 
   function addFiles(files: FileList | null) {
     if (!files) return;
@@ -126,8 +128,18 @@ export function BikeForm({ bike }: { bike?: Bike }) {
     e.preventDefault();
     setError(null);
 
-    if (photos.length === 0) {
-      setError("Add at least one photo.");
+    // Nothing on this form is required — a listing can go up with only a photo,
+    // or only a price, and be finished later. The one thing worth catching is a
+    // form where NOTHING was filled in, which is a mis-tap rather than an
+    // intent; it asks once and then saves it anyway if that is what was meant.
+    const blank =
+      [make, model, year, distance, price, colour, fuelType, location, warranty].every(
+        (value) => value.trim() === "",
+      ) && photos.length === 0;
+
+    if (blank && !confirmEmpty) {
+      setConfirmEmpty(true);
+      setError("This listing is empty. Tap Publish again to save it anyway.");
       return;
     }
 
@@ -212,27 +224,35 @@ export function BikeForm({ bike }: { bike?: Bike }) {
         </Link>
       </div>
 
+      {/* Every field below is optional — see the note in saveBike. Anything
+          left blank is simply left off the listing. */}
+      <p className="mt-4 rounded-lg border border-line bg-white px-4 py-3 text-sm text-slate">
+        Nothing here is required. Fill in what you know — anything you leave
+        blank is left off the listing, and you can add it later. A bike with no
+        price shows “Price on request”.
+      </p>
+
       {/* Details */}
       <div className="mt-8 grid gap-5 sm:grid-cols-2">
         <label className={labelCls}>
-          Make *
-          <input className={field} value={make} onChange={(e) => setMake(e.target.value)} required />
+          Make
+          <input className={field} value={make} onChange={(e) => setMake(e.target.value)} />
         </label>
         <label className={labelCls}>
-          Model *
-          <input className={field} value={model} onChange={(e) => setModel(e.target.value)} required />
+          Model
+          <input className={field} value={model} onChange={(e) => setModel(e.target.value)} />
         </label>
         <label className={labelCls}>
-          Year *
-          <input className={field} value={year} onChange={(e) => setYear(e.target.value)} inputMode="numeric" required />
+          Year
+          <input className={field} value={year} onChange={(e) => setYear(e.target.value)} inputMode="numeric" placeholder="Leave blank if unknown" />
         </label>
         <label className={labelCls}>
-          Price (USD) *
-          <input className={field} value={price} onChange={(e) => setPrice(e.target.value)} inputMode="numeric" required />
+          Price (USD)
+          <input className={field} value={price} onChange={(e) => setPrice(e.target.value)} inputMode="numeric" placeholder="Blank = price on request" />
         </label>
         <label className={labelCls}>
-          Mileage *
-          <input className={field} value={distance} onChange={(e) => setDistance(e.target.value)} inputMode="numeric" required />
+          Mileage
+          <input className={field} value={distance} onChange={(e) => setDistance(e.target.value)} inputMode="numeric" placeholder="Leave blank if unknown" />
         </label>
         <label className={labelCls}>
           Mileage unit
@@ -298,7 +318,8 @@ export function BikeForm({ bike }: { bike?: Bike }) {
 
         {photos.length === 0 ? (
           <p className="mt-5 rounded-lg border border-dashed border-line px-4 py-8 text-center text-sm text-slate">
-            No photos yet. Add at least one.
+            No photos yet. You can publish without them — the listing shows
+            “Photos coming soon” until you add some.
           </p>
         ) : (
           <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">

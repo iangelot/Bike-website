@@ -13,7 +13,9 @@ import type { Photo } from "@/lib/bikes";
  * someone looks at another angle. A few hundred bytes of state is the better
  * trade here.
  *
- * With one photo it renders as a plain image — no strip, no controls.
+ * With one photo it renders as a plain image — no strip, no controls. With
+ * none — photos are optional on a listing — it holds the same frame with a
+ * short note, so the page layout doesn't shift.
  */
 export function BikeGallery({ photos }: { photos: Photo[] }) {
   const [active, setActive] = useState(0);
@@ -22,15 +24,21 @@ export function BikeGallery({ photos }: { photos: Photo[] }) {
   return (
     <div>
       <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-plate">
-        <Image
-          key={current.src}
-          src={current.src}
-          alt={current.alt}
-          fill
-          priority
-          sizes="(width >= 64rem) 55vw, 92vw"
-          className="object-cover"
-        />
+        {current ? (
+          <Image
+            key={current.src}
+            src={current.src}
+            alt={current.alt}
+            fill
+            priority
+            sizes="(width >= 64rem) 55vw, 92vw"
+            className="object-cover"
+          />
+        ) : (
+          <p className="absolute inset-0 grid place-items-center px-6 text-center text-[0.9375rem] font-medium text-navy/50">
+            Photos coming soon — message us and we&apos;ll send them over.
+          </p>
+        )}
       </div>
 
       {photos.length > 1 ? (

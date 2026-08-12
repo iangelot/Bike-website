@@ -11,9 +11,17 @@ const BUCKET = "bike-photos";
 
 export type SaveResult = { ok: true; slug: string } | { ok: false; error: string };
 
-/** "Yamaha", "R1", 2020 → "yamaha-r1-2020". */
-function slugify(make: string, model: string, year: number): string {
-  return `${make} ${model} ${year}`
+/**
+ * "Yamaha", "R1", 2020 → "yamaha-r1-2020".
+ *
+ * Every part is optional, so this takes whatever was filled in. With none of
+ * them it returns "" and the caller falls back to a generated id — a listing
+ * still needs a URL even if it is, so far, just a photo and a price.
+ */
+function slugify(parts: Array<string | number | undefined>): string {
+  return parts
+    .filter(Boolean)
+    .join(" ")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
@@ -21,6 +29,24 @@ function slugify(make: string, model: string, year: number): string {
 
 function str(form: FormData, key: string): string {
   return String(form.get(key) ?? "").trim();
+}
+
+/**
+ * A number field, or undefined when left blank.
+ *
+ * Blank is a legitimate answer everywhere in this form — see the note on
+ * `Bike` — so only a value that is present and unreadable is an error, which
+ * is what the `invalid` flag distinguishes.
+ */
+function num(
+  form: FormData,
+  key: string,
+): { value?: number; invalid: boolean } {
+  const raw = str(form, key).replace(/[,\s]/g, "");
+  if (!raw) return { invalid: false };
+  const value = Number(raw);
+  if (!Number.isFinite(value)) return { invalid: true };
+  return { value, invalid: false };
 }
 
 /**
@@ -49,6 +75,13 @@ export async function createUploadTarget(): Promise<
 /**
  * Create or update a listing.
  *
+ * Nothing on the form is required. A seller who does not know the year, has
+ * not settled on a price, or is publishing before the photos are taken can
+ * save what they have and fill the rest in later — the public pages omit what
+ * is missing rather than showing blanks or zeroes. The only checks left are on
+ * values that WERE supplied and cannot be true (a year of 3050, a negative
+ * price), because those are typos, not omissions.
+ *
  * Photos arrive already uploaded (see createUploadTarget) as a list of URLs, so
  * this call carries only text and stays tiny.
  */
@@ -58,17 +91,17 @@ export async function saveBike(form: FormData): Promise<SaveResult> {
 
   const make = str(form, "make");
   const model = str(form, "model");
-  const year = Number(str(form, "year"));
-  const distance = Number(str(form, "distance"));
-  const price = Number(str(form, "price"));
 
-  if (!make || !model) return { ok: false, error: "Make and model are required." };
-  if (!Number.isFinite(year) || year < 1900 || year > 2100)
-    return { ok: false, error: "Enter a valid year." };
-  if (!Number.isFinite(distance) || distance < 0)
-    return { ok: false, error: "Enter a valid mileage." };
-  if (!Number.isFinite(price) || price < 0)
-    return { ok: false, error: "Enter a valid price." };
+  const year = num(form, "year");
+  const distance = num(form, "distance");
+  const price = num(form, "price");
+
+  if (year.invalid || (year.value !== undefined && (year.value < 1900 || year.value > 2100)))
+    return { ok: false, error: "Enter a valid year, or leave it blank." };
+  if (distance.invalid || (distance.value !== undefined && distance.value < 0))
+    return { ok: false, error: "Enter a valid mileage, or leave it blank." };
+  if (price.invalid || (price.value !== undefined && price.value < 0))
+    return { ok: false, error: "Enter a valid price, or leave it blank." };
 
   const isEdit = str(form, "isEdit") === "1";
   const existingSlug = str(form, "slug");
@@ -76,7 +109,11 @@ export async function saveBike(form: FormData): Promise<SaveResult> {
   // Slug is stable once created, so a listing's URL doesn't move when edited.
   let slug = existingSlug;
   if (!isEdit || !slug) {
-    slug = slugify(make, model, year);
+    // With no make, model or year to name it after, the listing still needs a
+    // URL — "listing-8f2c1a" is ugly but reachable, and the admin can give the
+    // bike a name later without the URL changing under existing links.
+    const base = slugify([make, model, year.value]) || `listing-${crypto.randomUUID().slice(0, 6)}`;
+    slug = base;
     for (let n = 2; ; n++) {
       const { data } = await supabase
         .from("bikes")
@@ -84,11 +121,12 @@ export async function saveBike(form: FormData): Promise<SaveResult> {
         .eq("slug", slug)
         .maybeSingle();
       if (!data) break;
-      slug = `${slugify(make, model, year)}-${n}`;
+      slug = `${base}-${n}`;
     }
   }
 
-  const alt = `${year} ${make} ${model}`;
+  // Fallback alt text for photos the admin didn't caption.
+  const alt = [year.value, make, model].filter(Boolean).join(" ") || "Motorcycle for sale";
 
   let incoming: Array<{ src?: string; alt?: string }>;
   try {
@@ -101,16 +139,14 @@ export async function saveBike(form: FormData): Promise<SaveResult> {
     .filter((p) => typeof p.src === "string" && p.src)
     .map((p) => ({ src: p.src as string, alt: p.alt || alt }));
 
-  if (photos.length === 0) return { ok: false, error: "Add at least one photo." };
-
   const row = {
     slug,
-    make,
-    model,
-    year,
-    distance,
+    make: make || null,
+    model: model || null,
+    year: year.value ?? null,
+    distance: distance.value ?? null,
     distance_unit: str(form, "distanceUnit") === "km" ? "km" : "mi",
-    price,
+    price: price.value ?? null,
     colour: str(form, "colour") || null,
     fuel_type: str(form, "fuelType") || null,
     location: str(form, "location") || null,
