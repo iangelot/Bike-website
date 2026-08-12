@@ -2,7 +2,6 @@
 
 import crypto from "node:crypto";
 import { redirect } from "next/navigation";
-import sharp from "sharp";
 import { requireUser } from "@/lib/auth";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getServiceClient } from "@/lib/supabase/service";
@@ -20,14 +19,39 @@ function slugify(make: string, model: string, year: number): string {
     .replace(/^-+|-+$/g, "");
 }
 
-/** One item of the ordered photo plan the form submits. */
-type PlanItem = { k: "e"; src: string; alt: string } | { k: "n"; i: number };
-
 function str(form: FormData, key: string): string {
   return String(form.get(key) ?? "").trim();
 }
 
-/** Create or update a listing. Called from the client form. */
+/**
+ * Hand the browser a one-time signed URL to upload a photo straight to storage.
+ *
+ * This is the key to reliable multi-photo uploads: the image bytes go directly
+ * from the phone to Supabase, never through the save action, so a bike with ten
+ * big photos can't blow the request-size limit. Gated by requireUser, and the
+ * signed token authorises just this one upload.
+ */
+export async function createUploadTarget(): Promise<
+  { ok: true; path: string; token: string } | { ok: false; error: string }
+> {
+  await requireUser();
+  const supabase = getServiceClient();
+  const path = `uploads/${crypto.randomUUID()}.jpg`;
+  const { data, error } = await supabase.storage
+    .from(BUCKET)
+    .createSignedUploadUrl(path);
+  if (error || !data) {
+    return { ok: false, error: error?.message ?? "Could not start the upload." };
+  }
+  return { ok: true, path, token: data.token };
+}
+
+/**
+ * Create or update a listing.
+ *
+ * Photos arrive already uploaded (see createUploadTarget) as a list of URLs, so
+ * this call carries only text and stays tiny.
+ */
 export async function saveBike(form: FormData): Promise<SaveResult> {
   await requireUser();
   const supabase = getServiceClient();
@@ -49,8 +73,7 @@ export async function saveBike(form: FormData): Promise<SaveResult> {
   const isEdit = str(form, "isEdit") === "1";
   const existingSlug = str(form, "slug");
 
-  // Slug is stable once created, so a listing's URL and photo folder don't move
-  // when its details are edited.
+  // Slug is stable once created, so a listing's URL doesn't move when edited.
   let slug = existingSlug;
   if (!isEdit || !slug) {
     slug = slugify(make, model, year);
@@ -67,50 +90,18 @@ export async function saveBike(form: FormData): Promise<SaveResult> {
 
   const alt = `${year} ${make} ${model}`;
 
-  let plan: PlanItem[];
+  let incoming: Array<{ src?: string; alt?: string }>;
   try {
-    plan = JSON.parse(str(form, "photoPlan") || "[]");
+    incoming = JSON.parse(str(form, "photos") || "[]");
   } catch {
     return { ok: false, error: "Could not read the photo list." };
   }
 
-  const photos: Photo[] = [];
-  for (const item of plan) {
-    if (item.k === "e") {
-      photos.push({ src: item.src, alt: item.alt || alt });
-      continue;
-    }
-    const file = form.get(`newphoto_${item.i}`);
-    if (!(file instanceof File) || file.size === 0) continue;
+  const photos: Photo[] = incoming
+    .filter((p) => typeof p.src === "string" && p.src)
+    .map((p) => ({ src: p.src as string, alt: p.alt || alt }));
 
-    // Re-encode to a sensible web size, same as the launch photos, so a phone
-    // upload doesn't ship a 6 MB original to every visitor.
-    const input = Buffer.from(await file.arrayBuffer());
-    let webp: Buffer;
-    try {
-      webp = await sharp(input)
-        .rotate()
-        .resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true })
-        .webp({ quality: 82 })
-        .toBuffer();
-    } catch {
-      return { ok: false, error: "One of the images could not be read. Use JPG, PNG or WebP." };
-    }
-
-    const path = `${slug}/${crypto.randomUUID()}.webp`;
-    const { error: upErr } = await supabase.storage
-      .from(BUCKET)
-      .upload(path, webp, { contentType: "image/webp", upsert: false });
-    if (upErr) return { ok: false, error: `Photo upload failed: ${upErr.message}` };
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from(BUCKET).getPublicUrl(path);
-    photos.push({ src: publicUrl, alt });
-  }
-
-  if (photos.length === 0)
-    return { ok: false, error: "Add at least one photo." };
+  if (photos.length === 0) return { ok: false, error: "Add at least one photo." };
 
   const row = {
     slug,
@@ -140,17 +131,31 @@ export async function saveBike(form: FormData): Promise<SaveResult> {
 }
 
 /** Delete a listing and its photos. */
-export async function deleteBike(slug: string): Promise<{ ok: boolean; error?: string }> {
+export async function deleteBike(
+  slug: string,
+): Promise<{ ok: boolean; error?: string }> {
   await requireUser();
   const supabase = getServiceClient();
 
-  // Best effort — a leftover image is harmless, a failed delete is not.
-  const { data: files } = await supabase.storage.from(BUCKET).list(slug);
-  if (files && files.length > 0) {
-    await supabase.storage
-      .from(BUCKET)
-      .remove(files.map((f) => `${slug}/${f.name}`));
+  // Work out each photo's storage path from its public URL and remove them.
+  const marker = `/storage/v1/object/public/${BUCKET}/`;
+  const { data: row } = await supabase
+    .from("bikes")
+    .select("photos")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  const paths: string[] = [];
+  const photos = (row?.photos ?? []) as Photo[];
+  for (const p of photos) {
+    const after = String(p.src).split(marker)[1];
+    if (after) paths.push(decodeURIComponent(after));
   }
+  // Older seed photos also live under a folder named after the slug.
+  const { data: legacy } = await supabase.storage.from(BUCKET).list(slug);
+  if (legacy) paths.push(...legacy.map((f) => `${slug}/${f.name}`));
+
+  if (paths.length > 0) await supabase.storage.from(BUCKET).remove(paths);
 
   const { error } = await supabase.from("bikes").delete().eq("slug", slug);
   if (error) return { ok: false, error: error.message };

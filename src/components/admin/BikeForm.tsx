@@ -4,8 +4,42 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { saveBike } from "@/app/admin/actions";
+import { createUploadTarget, saveBike } from "@/app/admin/actions";
+import { getSupabaseBrowser } from "@/lib/supabase/client";
 import type { Bike } from "@/lib/bikes";
+
+const BUCKET = "bike-photos";
+
+/**
+ * Shrink a photo in the browser before it is uploaded: cap the long edge at
+ * 1600px and re-encode as JPEG. A phone photo drops from several MB to a few
+ * hundred KB, which is what keeps big galleries fast and well under any upload
+ * limit. `imageOrientation: "from-image"` bakes in the EXIF rotation so
+ * portrait shots aren't sideways.
+ */
+async function resizeImage(file: File, max = 1600, quality = 0.82): Promise<Blob> {
+  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  let { width, height } = bitmap;
+  if (width > max || height > max) {
+    const scale = Math.min(max / width, max / height);
+    width = Math.round(width * scale);
+    height = Math.round(height * scale);
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas not supported.");
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+  return await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error("Could not process image."))),
+      "image/jpeg",
+      quality,
+    );
+  });
+}
 
 type PhotoItem = {
   id: string;
@@ -49,6 +83,7 @@ export function BikeForm({ bike }: { bike?: Bike }) {
 
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<string | null>(null);
 
   function addFiles(files: FileList | null) {
     if (!files) return;
@@ -97,41 +132,72 @@ export function BikeForm({ bike }: { bike?: Bike }) {
     }
 
     setBusy(true);
-    const fd = new FormData();
-    fd.set("make", make);
-    fd.set("model", model);
-    fd.set("year", year);
-    fd.set("distance", distance);
-    fd.set("distanceUnit", distanceUnit);
-    fd.set("price", price);
-    fd.set("colour", colour);
-    fd.set("fuelType", fuelType);
-    fd.set("location", location);
-    fd.set("warranty", warranty);
-    fd.set("featured", featured ? "true" : "false");
-    fd.set("isEdit", isEdit ? "1" : "0");
-    if (bike) fd.set("slug", bike.slug);
 
-    const plan: unknown[] = [];
-    let ni = 0;
-    for (const p of photos) {
-      if (p.kind === "existing") {
-        plan.push({ k: "e", src: p.src, alt: p.alt ?? "" });
-      } else if (p.file) {
-        plan.push({ k: "n", i: ni });
-        fd.set(`newphoto_${ni}`, p.file);
-        ni++;
+    try {
+      const supabase = getSupabaseBrowser();
+      const toUpload = photos.filter((p) => p.kind === "new").length;
+
+      // Upload each new photo straight to storage; keep the final list in order.
+      const finalPhotos: { src: string; alt: string }[] = [];
+      let done = 0;
+      for (const p of photos) {
+        if (p.kind === "existing") {
+          finalPhotos.push({ src: p.src!, alt: p.alt ?? "" });
+          continue;
+        }
+        if (!p.file) continue;
+
+        setProgress(`Uploading photo ${++done} of ${toUpload}…`);
+        const blob = await resizeImage(p.file);
+
+        const target = await createUploadTarget();
+        if (!target.ok) throw new Error(target.error);
+
+        const { error: upErr } = await supabase.storage
+          .from(BUCKET)
+          .uploadToSignedUrl(target.path, target.token, blob, {
+            contentType: "image/jpeg",
+          });
+        if (upErr) throw new Error(upErr.message);
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from(BUCKET).getPublicUrl(target.path);
+        finalPhotos.push({ src: publicUrl, alt: "" });
       }
-    }
-    fd.set("photoPlan", JSON.stringify(plan));
 
-    const res = await saveBike(fd);
-    if (res.ok) {
-      router.push("/admin");
-      router.refresh();
-    } else {
-      setError(res.error);
+      setProgress("Saving…");
+      const fd = new FormData();
+      fd.set("make", make);
+      fd.set("model", model);
+      fd.set("year", year);
+      fd.set("distance", distance);
+      fd.set("distanceUnit", distanceUnit);
+      fd.set("price", price);
+      fd.set("colour", colour);
+      fd.set("fuelType", fuelType);
+      fd.set("location", location);
+      fd.set("warranty", warranty);
+      fd.set("featured", featured ? "true" : "false");
+      fd.set("isEdit", isEdit ? "1" : "0");
+      if (bike) fd.set("slug", bike.slug);
+      fd.set("photos", JSON.stringify(finalPhotos));
+
+      const res = await saveBike(fd);
+      if (res.ok) {
+        router.push("/admin");
+        router.refresh();
+      } else {
+        setError(res.error);
+        setBusy(false);
+        setProgress(null);
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again.",
+      );
       setBusy(false);
+      setProgress(null);
     }
   }
 
@@ -278,7 +344,7 @@ export function BikeForm({ bike }: { bike?: Bike }) {
 
       <div className="mt-8 flex items-center gap-3">
         <button type="submit" disabled={busy} className="btn btn-primary rounded-lg disabled:opacity-60">
-          {busy ? "Saving…" : isEdit ? "Save changes" : "Publish bike"}
+          {busy ? progress ?? "Saving…" : isEdit ? "Save changes" : "Publish bike"}
         </button>
         <Link href="/admin" className="text-sm text-slate underline-offset-4 hover:underline">
           Cancel
