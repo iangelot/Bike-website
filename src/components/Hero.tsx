@@ -37,7 +37,7 @@ function MobileCallouts() {
       viewBox="0 0 402 608"
       fill="none"
       aria-hidden
-      className="absolute inset-0 h-full w-full"
+      className="pointer-events-none absolute inset-0 h-full w-full"
     >
       <g stroke="#001a34" strokeWidth="1.5">
         <line x1="86" y1="430" x2="150" y2="461" />
@@ -59,8 +59,9 @@ function HeroMobile() {
     letterSpacing: "0.02em",
   } as const;
 
-  /* Plain navy type, no backing plate — as the Figma draws it. */
-  const chip = "absolute font-medium uppercase text-navy";
+  /* Plain navy type, no backing plate — as the Figma draws it. Decorative, so
+     it must never sit over the button and swallow a tap. */
+  const chip = "pointer-events-none absolute font-medium uppercase text-navy";
 
   return (
     <section className="relative overflow-hidden bg-cream lg:hidden">
@@ -147,9 +148,10 @@ function HeroMobile() {
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
 
-        {/* Bike: Figma x=77 y=357 w=369 h=228. */}
+        {/* Bike: Figma x=77 y=357 w=369 h=228. Decorative — must not block the
+            button, part of which sits beneath it. */}
         <div
-          className="absolute"
+          className="pointer-events-none absolute"
           style={{ left: "19.2%", top: "49%", width: "91.8%", height: "37.5%" }}
         >
           <Image
@@ -186,7 +188,7 @@ function DesktopCallouts() {
       viewBox="0 0 999 618"
       fill="none"
       aria-hidden
-      className="absolute inset-0 h-full w-full"
+      className="pointer-events-none absolute inset-0 h-full w-full"
     >
       <g stroke="#001a34" strokeWidth="2">
         {/* handling → front brake */}
@@ -268,7 +270,7 @@ function HeroDesktop() {
         </div>
       </div>
 
-      <div className="relative z-10 -mt-44">
+      <div className="pointer-events-none relative z-10 -mt-44">
         <div className="relative mx-auto aspect-[999/618] w-[72%] max-w-none translate-x-[18%]">
           <Image
             src="/brand/hero-bike.webp"
