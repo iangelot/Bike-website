@@ -9,6 +9,7 @@ import { emailLink, site, whatsappLink } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Contact",
   description: `Message RAGERIDE on WhatsApp — or email us — to ask about a motorcycle, book a viewing, or inquire about financing.`,
+  alternates: { canonical: "/contact" },
 };
 
 /**

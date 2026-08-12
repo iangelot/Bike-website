@@ -9,6 +9,22 @@ export const site = {
   tagline: "Where passion meets the ground",
 
   /**
+   * The canonical address, no trailing slash.
+   *
+   * www is the canonical host: the apex redirects to it (308), which is how
+   * the domain is set up at the host. Everything that needs an absolute URL
+   * — social link previews, robots.txt, the sitemap — is built from this one
+   * value, so a domain change is a one-line edit here or an env var on the
+   * host. Vercel sets VERCEL_PROJECT_PRODUCTION_URL automatically, which is
+   * the sensible fallback for preview deployments.
+   */
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "https://www.rageride.shop"),
+
+  /**
    * WhatsApp is the way to reach the shop — every contact point on the site is
    * a wa.me link, and there is deliberately no tel: link anywhere.
    *

@@ -31,6 +31,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  /**
+   * Every relative URL in the metadata below — and in each page's — is
+   * resolved against this. Without it, a listing's Open Graph image is a path
+   * rather than an address, and WhatsApp or Facebook show the link with no
+   * picture. See `site.url`.
+   */
+  metadataBase: new URL(site.url),
   title: {
     default: `${site.fullName} — New and pre-owned motorcycles`,
     template: `%s — ${site.name}`,
@@ -41,6 +48,8 @@ export const metadata: Metadata = {
     title: site.fullName,
     description: "Quality used and new motorcycles. Financing available.",
     type: "website",
+    url: site.url,
+    siteName: site.fullName,
   },
 };
 

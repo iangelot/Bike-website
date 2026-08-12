@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: "Collection",
   description:
     "Every motorcycle currently on the floor at RAGERIDE — track and road bikes, inspected and vetted, with financing available.",
+  // Filtered views (?make=Honda) are the same page with fewer cards, so they
+  // point search engines back here rather than competing with it.
+  alternates: { canonical: "/bikes" },
 };
 
 // Always reflect the live database — a bike the admin just added or removed
