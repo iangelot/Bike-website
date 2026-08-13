@@ -54,6 +54,29 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Business identity for Google, as JSON-LD.
+ *
+ * This is what turns "a website that ranks" into "a business Google
+ * recognises": the name, logo, phone and email in a form search engines read
+ * directly, rather than guessing them from page text. It's the groundwork for
+ * a proper branded result — and eventually a knowledge panel — and it's built
+ * from site.ts so it can never drift from what the footer shows.
+ */
+const organizationLd = {
+  "@context": "https://schema.org",
+  "@type": "AutoDealer",
+  name: site.fullName,
+  url: site.url,
+  logo: `${site.url}/brand/og-cover.png`,
+  image: `${site.url}/brand/og-cover.png`,
+  description:
+    "Quality used and new motorcycles, checked, ridden, and sold straight. Financing available.",
+  email: site.email,
+  telephone: `+${site.whatsapp}`,
+  areaServed: "US",
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -62,6 +85,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${oswald.variable} ${inter.variable}`}>
       <body>
+        <script
+          type="application/ld+json"
+          // Trusted, static values from site.ts — no user input.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+        />
         {children}
         {/* Privacy-friendly visitor counts (pages, countries, referrers) shown
             in the Vercel dashboard's Analytics tab. No cookies, so no consent
