@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Oswald } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -60,7 +61,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${oswald.variable} ${inter.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Privacy-friendly visitor counts (pages, countries, referrers) shown
+            in the Vercel dashboard's Analytics tab. No cookies, so no consent
+            banner is needed. Collects nothing until Analytics is enabled for
+            the project in Vercel, and is inert off Vercel (local, previews). */}
+        <Analytics />
+      </body>
     </html>
   );
 }
