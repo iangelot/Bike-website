@@ -53,31 +53,38 @@ export default function ContactPage() {
               </p>
 
               <div className="mt-9">
-                <a
-                  href={whatsappLink(
-                    `Hello ${site.name}, I'd like to buy a bike.`,
-                  )}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-gold rounded-lg px-8 text-base"
-                >
-                  <WhatsAppIcon className="h-5 w-5" />
-                  Message us on WhatsApp
-                </a>
-                <p className="mt-4 font-display text-2xl font-medium">
+                {/* Both channels are one-tap buttons — no number or address to
+                    copy. WhatsApp opens a chat, Email opens the phone's mail
+                    app already addressed with a subject line filled in. */}
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <a
+                    href={whatsappLink(
+                      `Hello ${site.name}, I'd like to buy a bike.`,
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-gold rounded-lg px-8 text-base"
+                  >
+                    <WhatsAppIcon className="h-5 w-5" />
+                    Message us on WhatsApp
+                  </a>
+                  <a
+                    href={emailLink(`Enquiry — ${site.name}`)}
+                    className="btn btn-outline rounded-lg px-8 text-base"
+                  >
+                    <MailIcon className="h-5 w-5" />
+                    Email us
+                  </a>
+                </div>
+
+                <p className="mt-5 font-display text-2xl font-medium">
                   {site.whatsappDisplay}
                 </p>
-
-                <p className="mt-6 text-[0.9375rem] text-slate">
-                  Or email us — we reply to both.
-                </p>
-                <a
-                  href={emailLink(`Enquiry — ${site.name}`)}
-                  className="mt-2 inline-flex items-center gap-3 text-[1.0625rem] font-medium text-navy underline underline-offset-4 hover:text-gold"
-                >
-                  <MailIcon className="h-5 w-5 shrink-0 text-gold" />
+                {/* Shown so the address can still be saved by hand, but the
+                    button above is the no-friction way in. */}
+                <p className="mt-2 text-[0.9375rem] text-slate">
                   {site.email}
-                </a>
+                </p>
               </div>
 
               {site.address ? (

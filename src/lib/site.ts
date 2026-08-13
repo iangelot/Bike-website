@@ -41,7 +41,7 @@ export const site = {
    * the fallback for buyers who would rather write, and for anything that
    * needs an attachment. Set NEXT_PUBLIC_CONTACT_EMAIL to override.
    */
-  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "bl9713637@gmail.com",
+  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "Rageridemotorcycles@gmail.com",
 
   /**
    * NOT SUPPLIED YET. Both are optional and the footer simply omits the row
