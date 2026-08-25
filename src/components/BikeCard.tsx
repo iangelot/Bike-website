@@ -1,10 +1,22 @@
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { ArrowRight } from "./icons";
 import { bikeTitle, CARD_FOCUS, formatDistance, type Bike } from "@/lib/bikes";
 import { formatPrice } from "@/lib/site";
 
 const SIZES = "(width >= 64rem) 22vw, (width >= 40rem) 40vw, 92vw";
+const IMAGE_FALLBACK = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <rect width="1200" height="800" fill="#e7e2d8"/>
+  <rect x="70" y="70" width="1060" height="660" rx="26" fill="#f8f5ef" stroke="#1d2a36" stroke-width="4"/>
+  <path d="M318 462L522 220L628 352L778 240L914 462H318Z" fill="#c8d1d8"/>
+  <circle cx="492" cy="330" r="62" fill="#8a939b"/>
+  <circle cx="774" cy="330" r="62" fill="#8a939b"/>
+  <path d="M396 476H824" stroke="#1d2a36" stroke-width="18" stroke-linecap="round"/>
+  <text x="600" y="610" text-anchor="middle" fill="#1d2a36" font-family="Arial, sans-serif" font-size="42" font-weight="700">IMAGE UNAVAILABLE</text>
+</svg>
+`)}`;
 
 /**
  * A listing card: photo on one side, details on the other.
@@ -24,6 +36,7 @@ const SIZES = "(width >= 64rem) 22vw, (width >= 40rem) 40vw, 92vw";
  */
 export function BikeCard({ bike, priority = false }: { bike: Bike; priority?: boolean }) {
   const [lead] = bike.photos;
+  const [imageFailed, setImageFailed] = useState(false);
   const distance = formatDistance(bike);
 
   // Make is the headline and model the line under it, but either can be
@@ -43,11 +56,12 @@ export function BikeCard({ bike, priority = false }: { bike: Bike; priority?: bo
         <div className="relative aspect-[3/2] w-full shrink-0 overflow-hidden bg-plate sm:aspect-auto sm:min-h-[11.5rem] sm:w-[44%]">
           {lead ? (
             <Image
-              src={lead.src}
+              src={imageFailed ? IMAGE_FALLBACK : lead.src}
               alt={lead.alt}
               fill
               priority={priority}
               sizes={SIZES}
+              onError={() => setImageFailed(true)}
               style={{ objectPosition: lead.focus ?? CARD_FOCUS }}
               className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
             />

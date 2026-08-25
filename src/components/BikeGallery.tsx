@@ -4,6 +4,18 @@ import Image from "next/image";
 import { useState } from "react";
 import type { Photo } from "@/lib/bikes";
 
+const IMAGE_FALLBACK = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200">
+  <rect width="1600" height="1200" fill="#e7e2d8"/>
+  <rect x="80" y="80" width="1440" height="1040" rx="30" fill="#f8f5ef" stroke="#1d2a36" stroke-width="5"/>
+  <path d="M470 730L760 390L900 530L1120 390L1320 730H470Z" fill="#c8d1d8"/>
+  <circle cx="760" cy="515" r="82" fill="#8a939b"/>
+  <circle cx="1090" cy="515" r="82" fill="#8a939b"/>
+  <path d="M560 770H1230" stroke="#1d2a36" stroke-width="22" stroke-linecap="round"/>
+  <text x="800" y="920" text-anchor="middle" fill="#1d2a36" font-family="Arial, sans-serif" font-size="56" font-weight="700">IMAGE UNAVAILABLE</text>
+</svg>
+`)}`;
+
 /**
  * Listing gallery: one large photo with a thumbnail strip under it.
  *
@@ -19,6 +31,7 @@ import type { Photo } from "@/lib/bikes";
  */
 export function BikeGallery({ photos }: { photos: Photo[] }) {
   const [active, setActive] = useState(0);
+  const [imageFailed, setImageFailed] = useState(false);
   const current = photos[active] ?? photos[0];
 
   return (
@@ -27,10 +40,11 @@ export function BikeGallery({ photos }: { photos: Photo[] }) {
         {current ? (
           <Image
             key={current.src}
-            src={current.src}
+            src={imageFailed ? IMAGE_FALLBACK : current.src}
             alt={current.alt}
             fill
             priority
+            onError={() => setImageFailed(true)}
             sizes="(width >= 64rem) 55vw, 92vw"
             className="object-cover"
           />
@@ -57,9 +71,10 @@ export function BikeGallery({ photos }: { photos: Photo[] }) {
                 }`}
               >
                 <Image
-                  src={photo.src}
+                  src={imageFailed ? IMAGE_FALLBACK : photo.src}
                   alt=""
                   fill
+                  onError={() => setImageFailed(true)}
                   sizes="(width >= 64rem) 11vw, 18vw"
                   className="object-cover"
                 />
