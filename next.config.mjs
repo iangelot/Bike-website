@@ -4,6 +4,10 @@ const nextConfig = {
   // keep it external so it loads its native binary at runtime.
   serverExternalPackages: ["sharp"],
   images: {
+    // The site is currently hosted on Vercel, which enforces a transform quota
+    // on Next.js image optimization. Disabling optimization for remote bike
+    // photos avoids the quota cap while still serving the original assets.
+    unoptimized: true,
     // Supabase Storage serves uploaded bike photos from the project domain.
     // The hostname is filled in from the env var once the project exists.
     remotePatterns: process.env.NEXT_PUBLIC_SUPABASE_URL
