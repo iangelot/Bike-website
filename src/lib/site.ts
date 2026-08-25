@@ -31,10 +31,10 @@ export const site = {
    * International format, digits only — this is what wa.me expects.
    * Set NEXT_PUBLIC_WHATSAPP to override without a rebuild.
    */
-  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? "16082099441",
+  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? "14235802494",
 
   /** Shown next to the WhatsApp link so buyers can save the contact. */
-  whatsappDisplay: "+1 (608) 209-9441",
+  whatsappDisplay: "+1 (423) 580-2494",
 
   /**
    * Secondary contact. WhatsApp stays the primary channel everywhere — this is
