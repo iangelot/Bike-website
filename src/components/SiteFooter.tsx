@@ -6,7 +6,8 @@ import {
   SocialIcon,
   WhatsAppIcon,
 } from "./icons";
-import { nav, site, socials, whatsappLink } from "@/lib/site";
+import { nav, site, socials, whatsappLink, smsLink } from "@/lib/site";
+import { PhoneIcon } from "./icons";
 
 /**
  * The Figma footer is a 483px navy block containing nothing but the light
@@ -93,6 +94,16 @@ export function SiteFooter() {
               >
                 <WhatsAppIcon className="h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />
                 {site.whatsappDisplay}
+              </a>
+            </li>
+            {/* SMS as an alternate messaging channel */}
+            <li>
+              <a
+                href={smsLink(`Hello ${site.name}, I'd like to buy a bike.`)}
+                className="flex items-center gap-3 underline-offset-4 transition-colors hover:text-gold hover:underline"
+              >
+                <PhoneIcon className="h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />
+                {site.smsDisplay}
               </a>
             </li>
             {site.email ? (

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Logo } from "./Logo";
-import { nav, site, whatsappLink } from "@/lib/site";
+import { nav, site, whatsappLink, smsLink } from "@/lib/site";
 
 /**
  * Overlays the hero rather than stacking above it, so the angled road band can
@@ -40,6 +40,12 @@ export function SiteHeader() {
           >
             Buy
           </a>
+          <a
+            href={smsLink(`Hello ${site.name}, I'd like to buy a bike.`)}
+            className="btn btn-outline ml-3 hidden md:inline-block"
+          >
+            SMS
+          </a>
         </nav>
 
         <div className="flex items-center gap-3 lg:hidden">
@@ -51,6 +57,7 @@ export function SiteHeader() {
           >
             BUY
           </a>
+          <a href={smsLink(`Hello ${site.name}, I'd like to buy a bike.`)} className="btn btn-outline px-3 py-2 text-[0.8125rem] ml-2">SMS</a>
 
           <button
             type="button"

@@ -37,6 +37,15 @@ export const site = {
   whatsappDisplay: "+1 (423) 580-2494",
 
   /**
+   * SMS contact: use the same international digits-only format. Set
+   * NEXT_PUBLIC_SMS to override without a rebuild.
+   */
+  sms: process.env.NEXT_PUBLIC_SMS ?? "14235802494",
+
+  /** Shown next to the SMS link for readability. */
+  smsDisplay: "+1 (423) 580-2494",
+
+  /**
    * Secondary contact. WhatsApp stays the primary channel everywhere — this is
    * the fallback for buyers who would rather write, and for anything that
    * needs an attachment. Set NEXT_PUBLIC_CONTACT_EMAIL to override.
@@ -109,4 +118,10 @@ export function emailLink(subject: string): string {
  */
 export function whatsappLink(message: string): string {
   return `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(message)}`;
+}
+
+/** `sms:` link that includes a pre-filled body. */
+export function smsLink(message: string): string {
+  // Use the standard sms: URI with `body` for most mobile clients.
+  return `sms:${site.sms}?body=${encodeURIComponent(message)}`;
 }
