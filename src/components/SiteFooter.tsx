@@ -86,25 +86,32 @@ export function SiteFooter() {
             {/* WhatsApp link, not a tel: link — the number is used for
                 messaging rather than voice. See the note in site.ts. */}
             <li>
-              <a
-                href={whatsappLink(`Hello ${site.name}, I'd like to buy a bike.`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 underline-offset-4 transition-colors hover:text-gold hover:underline"
-              >
-                <WhatsAppIcon className="h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />
-                {site.whatsappDisplay}
-              </a>
-            </li>
-            {/* SMS as an alternate messaging channel */}
-            <li>
-              <a
-                href={smsLink(`Hello ${site.name}, I'd like to buy a bike.`)}
-                className="flex items-center gap-3 underline-offset-4 transition-colors hover:text-gold hover:underline"
-              >
-                <PhoneIcon className="h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />
-                {site.smsDisplay}
-              </a>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-3 underline-offset-4">
+                  <WhatsAppIcon className="h-[1.125rem] w-[1.125rem] shrink-0 text-gold" />
+                  <span className="text-[0.9375rem]">{site.whatsappDisplay}</span>
+                </span>
+
+                <span className="ml-2 flex items-center gap-2">
+                  <a
+                    href={whatsappLink(`Hello ${site.name}, I'd like to buy a bike.`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Message on WhatsApp"
+                    className="grid place-items-center rounded-full border border-white/10 bg-cream p-2 text-navy hover:bg-gold"
+                  >
+                    <WhatsAppIcon className="h-4 w-4 text-navy" />
+                  </a>
+
+                  <a
+                    href={smsLink(`Hello ${site.name}, I'd like to buy a bike.`)}
+                    aria-label="Send SMS"
+                    className="grid place-items-center rounded-full border border-white/10 bg-cream p-2 text-navy hover:bg-gold"
+                  >
+                    <PhoneIcon className="h-4 w-4 text-navy" />
+                  </a>
+                </span>
+              </div>
             </li>
             {site.email ? (
               <li>
