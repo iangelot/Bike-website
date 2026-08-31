@@ -82,6 +82,14 @@ export function PhoneIcon({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
+export function MessageIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
+      <path d="M20 2H4a2 2 0 00-2 2v14l4-2h14a2 2 0 002-2V4a2 2 0 00-2-2zM6 11h12v2H6v-2zm0-4h12v2H6V7z" />
+    </svg>
+  );
+}
+
 export function PinIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
     <svg

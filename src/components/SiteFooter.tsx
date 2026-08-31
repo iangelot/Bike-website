@@ -7,7 +7,7 @@ import {
   WhatsAppIcon,
 } from "./icons";
 import { nav, site, socials, whatsappLink, smsLink } from "@/lib/site";
-import { PhoneIcon } from "./icons";
+import { MessageIcon } from "./icons";
 
 /**
  * The Figma footer is a 483px navy block containing nothing but the light
@@ -108,7 +108,7 @@ export function SiteFooter() {
                     aria-label="Send SMS"
                     className="grid place-items-center rounded-full border border-white/10 bg-cream p-2 text-navy hover:bg-gold"
                   >
-                    <PhoneIcon className="h-4 w-4 text-navy" />
+                    <MessageIcon className="h-4 w-4 text-navy" />
                   </a>
                 </span>
               </div>
